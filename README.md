@@ -10,3 +10,10 @@ This is a project for the course "microelectrical systems and design" in the ele
 ## Authors
 Benedikt Schnörr,
 Sebastian Pasinski
+
+### Work Packages
+- schematics in v1 and v2: Benedikt
+- layout in v2: Sebastian
+- schematics in v3: Benedikt, Sebastian
+- layout in v3: Sebastian
+- code for rc5 protocol: Benedikt
