@@ -6,6 +6,7 @@ This is a project for the course "microelectrical systems and design" in the ele
 - v1: basic schematic to show inputs and outputs with pic18f452
 - v2: proper schematic including reset circuit, quartz oscillator and power supply
 - v3: proper layout with remote design
+- v4: optimize inductor width, space management and add cooling area for power supply
 
 ## Authors
 Benedikt Schnörr,
