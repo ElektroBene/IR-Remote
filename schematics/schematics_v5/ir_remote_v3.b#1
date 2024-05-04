@@ -1028,8 +1028,8 @@ design rules under a new name.</description>
 <wire x1="69.39915" y1="23.67915" x2="69.39915" y2="29.95295" width="1.27" layer="1"/>
 <wire x1="69.39915" y1="29.95295" x2="69.37375" y2="29.97835" width="1.27" layer="1"/>
 <polygon width="0.6096" layer="1" isolate="0.4064" thermals="no">
-<vertex x="62.70625" y="39.0525"/>
-<vertex x="76.04125" y="39.0525"/>
+<vertex x="62.70625" y="36.98875"/>
+<vertex x="76.04125" y="36.98875"/>
 <vertex x="76.04125" y="23.01875"/>
 <vertex x="62.70625" y="23.01875"/>
 </polygon>
