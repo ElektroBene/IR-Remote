@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.6.2">
+<eagle version="8.3.1">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -10267,13 +10267,6 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <label x="83.82" y="63.5" size="1.778" layer="95"/>
 <pinref part="T11" gate="G$1" pin="S"/>
 <pinref part="R1" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="RD0_LED" class="0">
-<segment>
-<pinref part="IC8" gate="G$1" pin="RD0/PSP0"/>
-<wire x1="78.74" y1="124.46" x2="66.04" y2="124.46" width="0.1524" layer="91"/>
-<label x="66.04" y="124.46" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$19" class="0">
