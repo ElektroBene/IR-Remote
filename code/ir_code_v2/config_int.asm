@@ -85,16 +85,17 @@ HighInt:
 ;	*** high priority interrupt code goes here ***
 
 
-		retfie	FAST
+		RETFIE
 
 
 
 LowInt:
+        bcf INTCON, INT0IF  ; Clear interrupt Flag
 
-        bcf PORTB, 1
-        bcf INTCON,INT0IF
-       
-        retfie Main
+check btfss PORTB, RB0 ; ist schalter gedrückt
+        retfie 
+        bcf PORTB, 1 ; Schalte LED an RB1 aus
+        goto check 
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
@@ -103,18 +104,20 @@ Main:
 
 movlw 0x01
 movwf TRISB
+movlw 0x01
+movwf ADCON1
 
 
-loop bsf PORTB, 1
-
-goto loop
 bsf INTCON,  INT0IE 
 bcf INTCON,  INT0IF ; Clears Flag
 bsf INTCON2, INTEDG0 ; sensitive on rising edge 
 bsf INTCON,  GIE ; Sets Globes interrupt Enable bit
 
+; muss ich jetzt noch die Flanke einstellen 
 
 
+loop bsf PORTB, 1 ; LED auf
+goto loop
 
 
 
