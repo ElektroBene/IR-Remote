@@ -72,7 +72,8 @@
 
 
         ORG 0x0018
-        
+        nop
+		nop
         bra LowInt 
 
 ;******************************************************************************
@@ -87,7 +88,7 @@ HighInt:
 
 check btfss PORTB, RB0 ; ist schalter gedrückt
         retfie 
-        bcf PORTB, 1 ; Schalte LED an RB1 aus
+        bcf LATB, 1 ; Schalte LED an RB1 aus
         goto check 
 
 		
@@ -118,7 +119,8 @@ bsf INTCON,  GIE ; Sets Globes interrupt Enable bit
 ; muss ich jetzt noch die Flanke einstellen 
 
 
-loop bsf PORTB, 1 ; LED auf
+loop bsf LATB,1 
+     bsf LATB,RB2         ; LED an
 goto loop
 
 
