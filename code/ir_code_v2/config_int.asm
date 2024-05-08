@@ -83,19 +83,21 @@
 HighInt:
 
 ;	*** high priority interrupt code goes here ***
-
-
-		RETFIE
-
-
-
-LowInt:
         bcf INTCON, INT0IF  ; Clear interrupt Flag
 
 check btfss PORTB, RB0 ; ist schalter gedrückt
         retfie 
         bcf PORTB, 1 ; Schalte LED an RB1 aus
         goto check 
+
+		
+
+
+
+LowInt:
+
+        retfie 
+       
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
