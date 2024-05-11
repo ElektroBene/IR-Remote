@@ -84,11 +84,12 @@
 HighInt:
 
 ;	*** high priority interrupt code goes here ***
-        bcf INTCON, INT0IF  ; Clear interrupt Flag
+;bcf INTCON, INT0IF
 
 check btfss PORTB, RB0 ; ist schalter gedrückt
         retfie 
         bcf LATB, 1 ; Schalte LED an RB1 aus
+        bcf INTCON, INT0IF  ; Clear interrupt Flag
         goto check 
 
 		
