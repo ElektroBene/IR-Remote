@@ -107,14 +107,15 @@ Main:
 
 movlw 0x01
 movwf TRISB
-movlw 0x01
+movlw 0x0Fh ; RB<4:0> digital I/O Pins (siehe addcon
 movwf ADCON1
 
-
-bsf INTCON,  INT0IE 
 bcf INTCON,  INT0IF ; Clears Flag
+bsf INTCON,  INT0IE ; change: Reihen folge getausch 
 bsf INTCON2, INTEDG0 ; sensitive on rising edge 
 bsf INTCON,  GIE ; Sets Globes interrupt Enable bit
+
+; Priority ändern
 
 ; muss ich jetzt noch die Flanke einstellen 
 
