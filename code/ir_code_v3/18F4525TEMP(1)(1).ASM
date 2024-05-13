@@ -34,7 +34,7 @@
 
 
 ;   Oscillator Selection:
-    CONFIG	OSC = XT             ;LP
+    CONFIG	OSC = HS             ;LP
 
 ;******************************************************************************
 ;Variable definitions
@@ -94,10 +94,9 @@ HighInt:
 
 Main:
 		; configure port c
-		clrf PORTB
-		banksel TRISB
-		movlw 0x00			; configure port c as outputs
-		movwf TRISB
+		clrf PORTC
+		clrf LATC
+		clrf TRISC
 		
 		;bsf PORTB,0x01
 
@@ -105,25 +104,32 @@ Main:
 		banksel PR2
 		movlw 0x44			; configure period time with 0x44
 		movwf PR2
-		movlw b'00000010'	; configure duty cycle with 0x11
+
+		movlw b'00000100'	; configure duty cycle with 0x11
 		movwf CCPR2L
-		bsf CCP2CON,0x05
-		bsf CCP2CON,0x04
+		movlw b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
+		movwf CCP2CON
 		
 		;bcf T2CON,T2CKPS1	; configure timer prescale value with 1
 		;bcf T2CON,T2CKPS0
 		;bsf T2CON,TMR2ON	; enable timer
-		movlw b'00000100'	; configure timer postscale, prescale and turn on timer
-		movwf T2CON
+		;movlw b'00001100'	; configure timer postscale, prescale and turn on timer
+		;movwf T2CON
 		
+		bcf PIR1,TMR2IF
+		bcf T2CON,T2CKPS1
+		bcf T2CON,T2CKPS0
+		bsf T2CON,TMR2ON
+
 		;bsf PORTB,0x03
 		
-		banksel CCP2CON
-		bsf CCP2CON, 0x03	; turn on pwm mode with 11xx
-		bsf CCP2CON, 0x02
+		;banksel CCP2CON
+		;bsf CCP2CON, 0x03	; turn on pwm mode with 11xx
+		;bsf CCP2CON, 0x02
 
 		;bcf PORTB,0x03
-
+loop:
+	goto loop
 
 
 ;******************************************************************************

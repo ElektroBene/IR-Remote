@@ -1,4 +1,4 @@
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  1
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -49,7 +49,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00034 
                       00035 
                       00036 ;   Oscillator Selection:
-01 1F 1F 83 85 0F C0 000037     CONFIG      OSC = XT             ;LP
+02 1F 1F 83 85 0F C0 000037     CONFIG      OSC = HS             ;LP
        F E0 0F 40 
                       00038 
                       00039 ;******************************************************************************
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00041 ; These variables are only needed if low priority interrupts are used. 
                       00042 ; More variables may be needed to store other special function registers used
                       00043 ; in the interrupt routines.
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  2
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ F00000 6554 7473 4420 00053                 DE      "Test Data",0,1,2,3,4,5
                       00092 ;Start of main program
                       00093 ; The main program code is placed here.
                       00094 
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  3
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -124,43 +124,49 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 
 00000C                00095 Main:
                       00096                 ; configure port c
-00000C 6A81           00097                 clrf PORTB
-00000E 010F           00098                 banksel TRISB
-000010 0E00           00099                 movlw 0x00                      ; configure port c as outputs
-000012 6E93           00100                 movwf TRISB
-                      00101                 
-                      00102                 ;bsf PORTB,0x01
-                      00103 
-                      00104 ;               ; configure pwm module
-000014 010F           00105                 banksel PR2
-000016 0E44           00106                 movlw 0x44                      ; configure period time with 0x44
-000018 6ECB           00107                 movwf PR2
-00001A 0E02           00108                 movlw b'00000010'       ; configure duty cycle with 0x11
-00001C 6EBB           00109                 movwf CCPR2L
-00001E 8ABA           00110                 bsf CCP2CON,0x05
-000020 88BA           00111                 bsf CCP2CON,0x04
+00000C 6A82           00097                 clrf PORTC
+00000E 6A8B           00098                 clrf LATC
+000010 6A94           00099                 clrf TRISC
+                      00100                 
+                      00101                 ;bsf PORTB,0x01
+                      00102 
+                      00103 ;               ; configure pwm module
+000012 010F           00104                 banksel PR2
+000014 0E44           00105                 movlw 0x44                      ; configure period time with 0x44
+000016 6ECB           00106                 movwf PR2
+                      00107 
+000018 0E04           00108                 movlw b'00000100'       ; configure duty cycle with 0x11
+00001A 6EBB           00109                 movwf CCPR2L
+00001C 0E1C           00110                 movlw b'00011100'       ; configure pwm mode and 2 lsbs of duty cycle
+00001E 6EBA           00111                 movwf CCP2CON
                       00112                 
                       00113                 ;bcf T2CON,T2CKPS1      ; configure timer prescale value with 1
                       00114                 ;bcf T2CON,T2CKPS0
                       00115                 ;bsf T2CON,TMR2ON       ; enable timer
-000022 0E04           00116                 movlw b'00000100'       ; configure timer postscale, prescale and turn on timer
-000024 6ECA           00117                 movwf T2CON
+                      00116                 ;movlw b'00001100'      ; configure timer postscale, prescale and turn on timer
+                      00117                 ;movwf T2CON
                       00118                 
-                      00119                 ;bsf PORTB,0x03
-                      00120                 
-000026 010F           00121                 banksel CCP2CON
-000028 86BA           00122                 bsf CCP2CON, 0x03       ; turn on pwm mode with 11xx
-00002A 84BA           00123                 bsf CCP2CON, 0x02
-                      00124 
-                      00125                 ;bcf PORTB,0x03
-                      00126 
-                      00127 
-                      00128 
-                      00129 ;******************************************************************************
-                      00130 ;End of program
-00002C EF16 F000      00131         goto $
-                      00132                 END
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  4
+000020 929E           00119                 bcf PIR1,TMR2IF
+000022 92CA           00120                 bcf T2CON,T2CKPS1
+000024 90CA           00121                 bcf T2CON,T2CKPS0
+000026 84CA           00122                 bsf T2CON,TMR2ON
+                      00123 
+                      00124                 ;bsf PORTB,0x03
+                      00125                 
+                      00126                 ;banksel CCP2CON
+                      00127                 ;bsf CCP2CON, 0x03      ; turn on pwm mode with 11xx
+                      00128                 ;bsf CCP2CON, 0x02
+                      00129 
+                      00130                 ;bcf PORTB,0x03
+000028                00131 loop:
+000028 EF14 F000      00132         goto loop
+                      00133 
+                      00134 
+                      00135 ;******************************************************************************
+                      00136 ;End of program
+00002C EF16 F000      00137         goto $
+                      00138                 END
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  4
 
 
 SYMBOL TABLE
@@ -219,7 +225,7 @@ C1OUT                             00000006
 C2INV                             00000005
 C2OUT                             00000007
 CCP                               00000000
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  5
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  5
 
 
 SYMBOL TABLE
@@ -278,7 +284,7 @@ CVR1                              00000001
 CVR2                              00000002
 CVR3                              00000003
 CVRCON                            00000FB5
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  6
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  6
 
 
 SYMBOL TABLE
@@ -337,7 +343,7 @@ GIEL                              00000006
 GIE_GIEH                          00000007
 GO                                00000001
 GO_DONE                           00000001
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  7
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  7
 
 
 SYMBOL TABLE
@@ -396,7 +402,7 @@ IRCF1                             00000005
 IRCF2                             00000006
 IRVST                             00000005
 IVRST                             00000005
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  8
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  8
 
 
 SYMBOL TABLE
@@ -455,7 +461,7 @@ LVDIP                             00000002
 LVDL0                             00000000
 LVDL1                             00000001
 LVDL2                             00000002
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE  9
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE  9
 
 
 SYMBOL TABLE
@@ -514,7 +520,7 @@ PD                                00000002
 PDC0                              00000000
 PDC1                              00000001
 PDC2                              00000002
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 10
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 10
 
 
 SYMBOL TABLE
@@ -573,7 +579,7 @@ PSPIP                             00000007
 PSPMODE                           00000004
 PSSAC0                            00000002
 PSSAC1                            00000003
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 11
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 11
 
 
 SYMBOL TABLE
@@ -632,7 +638,7 @@ RD6                               00000006
 RD7                               00000007
 RE0                               00000000
 RE1                               00000001
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 12
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 12
 
 
 SYMBOL TABLE
@@ -691,7 +697,7 @@ STKFUL                            00000007
 STKOVF                            00000007
 STKPTR                            00000FFC
 STKPTR0                           00000000
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 13
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 13
 
 
 SYMBOL TABLE
@@ -750,7 +756,7 @@ TMR0IE                            00000005
 TMR0IF                            00000002
 TMR0IP                            00000002
 TMR0L                             00000FD6
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 14
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 14
 
 
 SYMBOL TABLE
@@ -809,7 +815,7 @@ TRISC                             00000F94
 TRISC0                            00000000
 TRISC1                            00000001
 TRISC2                            00000002
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 15
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 15
 
 
 SYMBOL TABLE
@@ -868,7 +874,7 @@ _BOREN_OFF_2L                     000000F9
 _BOREN_ON_2L                      000000FB
 _BOREN_SBORDIS_2L                 000000FF
 _BORV_0_2L                        000000E7
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 16
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 16
 
 
 SYMBOL TABLE
@@ -927,7 +933,7 @@ _IESO_ON_1H                       000000FF
 _LPT1OSC_OFF_3H                   000000FB
 _LPT1OSC_ON_3H                    000000FF
 _LVP_OFF_4L                       000000FB
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 17
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 17
 
 
 SYMBOL TABLE
@@ -986,13 +992,13 @@ _XINST_OFF_4L                     000000BF
 _XINST_ON_4L                      000000FF
 __18F4525                         00000001
 __DEBUG                           1
-MPASM  5.51             18F4525TEMP(1)(1).ASM   5-7-2024  12:36:35         PAGE 18
+MPASM  5.51             18F4525TEMP(1)(1).ASM   5-12-2024  14:18:51         PAGE 18
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
-__MPLAB_DEBUGGER_ICD3             1
+loop                              00000028
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
