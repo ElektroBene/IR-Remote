@@ -84,12 +84,13 @@
 HighInt:
 
 ;	*** high priority interrupt code goes here ***
-;bcf INTCON, INT0IF
+bcf INTCON, INT0IF
 
-check btfss PORTB, RB0 ; ist schalter gedrückt
+check	btfss PORTB, RB0 ; Kann hier den Pin nicht richtig auslesen. PBADEN oder RBPU ? 
         retfie 
         bcf LATB, 1 ; Schalte LED an RB1 aus
-        bcf INTCON, INT0IF  ; Clear interrupt Flag
+        ;bcf INTCON, INT0IF  ; Clear interrupt Flag
+        retfie
         goto check 
 
 		
@@ -106,10 +107,14 @@ LowInt:
 
 Main:
 
-movlw 0x01
-movwf TRISB
-movlw 0x0Fh ; RB<4:0> digital I/O Pins (siehe addcon
+clrf PORTB
+clrf LATB
+
+movlw 0x0F ; RB<4:0> digital I/O Pins (siehe addcon
 movwf ADCON1
+
+movlw 0x01
+movwf TRISB 
 
 bcf INTCON,  INT0IF ; Clears Flag
 bsf INTCON,  INT0IE ; change: Reihen folge getausch 
@@ -120,9 +125,11 @@ bsf INTCON,  GIE ; Sets Globes interrupt Enable bit
 
 ; muss ich jetzt noch die Flanke einstellen 
 
+bsf LATB,1 
 
-loop bsf LATB,1 
-     bsf LATB,RB2         ; LED an
+loop bsf LATB,RB2         ; LED an
+     bsf LATB, RB3
+     bsf INTCON, INT0IF
 goto loop
 
 
@@ -132,4 +139,3 @@ goto loop
 ;End of program
 	goto $
 		END
-
