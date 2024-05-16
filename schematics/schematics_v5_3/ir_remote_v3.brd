@@ -10,7 +10,7 @@
 <grid distance="0.15875" unitdist="mm" unit="mm" style="lines" multiple="1" display="yes" altdistance="2.5" altunitdist="mil" altunit="mil"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="yes"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="yes"/>
 <layer number="17" name="Pads" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="18" name="Vias" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="yes"/>
@@ -203,6 +203,15 @@
 <wire x1="0" y1="39.20125" x2="0" y2="0" width="0" layer="20"/>
 <rectangle x1="66.04" y1="7.46125" x2="70.8025" y2="13.97" layer="1"/>
 <rectangle x1="59.69" y1="7.46125" x2="64.4525" y2="13.97" layer="1"/>
+<dimension x1="73.81875" y1="39.21125" x2="73.81875" y2="0" x3="79.21625" y3="19.605625" textsize="1.778" layer="1"/>
+<dimension x1="0" y1="0" x2="73.81875" y2="0" x3="36.909375" y3="-3.65125" textsize="1.778" layer="1"/>
+<dimension x1="10.63625" y1="5.87375" x2="10.63625" y2="31.27375" x3="9.04875" y3="18.57375" textsize="1.778" layer="1"/>
+<dimension x1="20.79625" y1="31.27375" x2="20.79625" y2="18.57375" x3="22.5425" y3="24.92375" textsize="1.778" layer="1"/>
+<dimension x1="20.79625" y1="5.87375" x2="20.79625" y2="18.57375" x3="22.70125" y3="12.22375" textsize="1.778" layer="1"/>
+<dimension x1="10.63625" y1="5.87375" x2="20.79625" y2="5.87375" x3="15.71625" y3="-0.3175" textsize="1.778" layer="1"/>
+<dimension x1="10.63625" y1="5.87375" x2="0" y2="5.87375" x3="5.318125" y3="3.175" textsize="1.778" layer="1"/>
+<dimension x1="10.63625" y1="31.27375" x2="10.63625" y2="39.21125" x3="6.50875" y3="35.2425" textsize="1.778" layer="1"/>
+<dimension x1="20.79625" y1="5.87375" x2="20.79625" y2="0" x3="32.385" y3="2.936875" textsize="1.778" layer="1"/>
 </plain>
 <libraries>
 <library name="rcl">
