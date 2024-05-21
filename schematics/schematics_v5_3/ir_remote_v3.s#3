@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="8.3.1">
+<eagle version="9.6.2">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -10195,6 +10195,18 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 </net>
 <net name="RB3" class="0">
 <segment>
+<pinref part="IC8" gate="G$1" pin="CCP2/AN9/RB3"/>
+<wire x1="129.54" y1="149.86" x2="139.7" y2="149.86" width="0.1524" layer="91"/>
+<label x="137.16" y="149.86" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="RB4" class="0">
+<segment>
+<pinref part="IC8" gate="G$1" pin="AN11/RB4"/>
+<wire x1="129.54" y1="147.32" x2="139.7" y2="147.32" width="0.1524" layer="91"/>
+<label x="137.16" y="147.32" size="1.778" layer="95"/>
+</segment>
+<segment>
 <wire x1="33.02" y1="25.4" x2="71.12" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="68.58" x2="71.12" y2="25.4" width="0.1524" layer="91"/>
 <wire x1="71.12" y1="25.4" x2="88.9" y2="25.4" width="0.1524" layer="91"/>
@@ -10203,13 +10215,25 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <pinref part="T14" gate="G$1" pin="S"/>
 <pinref part="R4" gate="G$1" pin="2"/>
 </segment>
+</net>
+<net name="RC2" class="0">
 <segment>
-<pinref part="IC8" gate="G$1" pin="CCP2/AN9/RB3"/>
-<wire x1="129.54" y1="149.86" x2="139.7" y2="149.86" width="0.1524" layer="91"/>
-<label x="137.16" y="149.86" size="1.778" layer="95"/>
+<pinref part="IC8" gate="G$1" pin="CCP1/RC2"/>
+<wire x1="129.54" y1="129.54" x2="139.7" y2="129.54" width="0.1524" layer="91"/>
+<label x="137.16" y="129.54" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="142.24" y1="119.38" x2="154.94" y2="119.38" width="0.1524" layer="91"/>
+<label x="142.24" y="119.38" size="1.778" layer="95"/>
+<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 </net>
-<net name="RB4" class="0">
+<net name="RB5" class="0">
+<segment>
+<pinref part="IC8" gate="G$1" pin="PGM/RB5"/>
+<wire x1="129.54" y1="144.78" x2="139.7" y2="144.78" width="0.1524" layer="91"/>
+<label x="137.16" y="144.78" size="1.778" layer="95"/>
+</segment>
 <segment>
 <wire x1="33.02" y1="12.7" x2="78.74" y2="12.7" width="0.1524" layer="91"/>
 <wire x1="78.74" y1="68.58" x2="78.74" y2="12.7" width="0.1524" layer="91"/>
@@ -10218,24 +10242,6 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <label x="83.82" y="12.7" size="1.778" layer="95"/>
 <pinref part="T15" gate="G$1" pin="S"/>
 <pinref part="R5" gate="G$1" pin="2"/>
-</segment>
-<segment>
-<pinref part="IC8" gate="G$1" pin="AN11/RB4"/>
-<wire x1="129.54" y1="147.32" x2="139.7" y2="147.32" width="0.1524" layer="91"/>
-<label x="137.16" y="147.32" size="1.778" layer="95"/>
-</segment>
-</net>
-<net name="RDS_INT" class="0">
-<segment>
-<wire x1="127" y1="129.54" x2="129.54" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="IC8" gate="G$1" pin="CCP1/RC2"/>
-</segment>
-</net>
-<net name="RB5" class="0">
-<segment>
-<pinref part="IC8" gate="G$1" pin="PGM/RB5"/>
-<wire x1="129.54" y1="144.78" x2="139.7" y2="144.78" width="0.1524" layer="91"/>
-<label x="137.16" y="144.78" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="N$24" class="0">
@@ -10268,11 +10274,6 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <pinref part="IC8" gate="G$1" pin="RD0/PSP0"/>
 <wire x1="78.74" y1="124.46" x2="66.04" y2="124.46" width="0.1524" layer="91"/>
 <label x="66.04" y="124.46" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="142.24" y1="119.38" x2="154.94" y2="119.38" width="0.1524" layer="91"/>
-<label x="142.24" y="119.38" size="1.778" layer="95"/>
-<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$19" class="0">

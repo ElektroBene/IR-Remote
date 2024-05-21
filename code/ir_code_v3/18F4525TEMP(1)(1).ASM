@@ -105,9 +105,9 @@ Main:
 		movlw 0x44			; configure period time with 0x44
 		movwf PR2
 
-		movlw b'00000100'	; configure duty cycle with 0x11
+		movlw b'00010001' ;b'00000100'	; configure duty cycle with 0x11
 		movwf CCPR2L
-		movlw b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
+		movlw b'00001100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
 		movwf CCP2CON
 		
 		;bcf T2CON,T2CKPS1	; configure timer prescale value with 1

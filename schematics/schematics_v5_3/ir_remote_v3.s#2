@@ -10216,10 +10216,16 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <pinref part="R4" gate="G$1" pin="2"/>
 </segment>
 </net>
-<net name="RDS_INT" class="0">
+<net name="RC2" class="0">
 <segment>
-<wire x1="127" y1="129.54" x2="129.54" y2="129.54" width="0.1524" layer="91"/>
 <pinref part="IC8" gate="G$1" pin="CCP1/RC2"/>
+<wire x1="129.54" y1="129.54" x2="139.7" y2="129.54" width="0.1524" layer="91"/>
+<label x="137.16" y="129.54" size="1.778" layer="95"/>
+</segment>
+<segment>
+<wire x1="142.24" y1="119.38" x2="154.94" y2="119.38" width="0.1524" layer="91"/>
+<label x="142.24" y="119.38" size="1.778" layer="95"/>
+<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="RB5" class="0">
@@ -10261,18 +10267,6 @@ Source: http://www.vishay.com/docs/10129/hpc0201a.pdf</description>
 <label x="83.82" y="63.5" size="1.778" layer="95"/>
 <pinref part="T11" gate="G$1" pin="S"/>
 <pinref part="R1" gate="G$1" pin="2"/>
-</segment>
-</net>
-<net name="RD0_LED" class="0">
-<segment>
-<pinref part="IC8" gate="G$1" pin="RD0/PSP0"/>
-<wire x1="78.74" y1="124.46" x2="66.04" y2="124.46" width="0.1524" layer="91"/>
-<label x="66.04" y="124.46" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="142.24" y1="119.38" x2="154.94" y2="119.38" width="0.1524" layer="91"/>
-<label x="142.24" y="119.38" size="1.778" layer="95"/>
-<pinref part="R6" gate="G$1" pin="1"/>
 </segment>
 </net>
 <net name="N$19" class="0">
