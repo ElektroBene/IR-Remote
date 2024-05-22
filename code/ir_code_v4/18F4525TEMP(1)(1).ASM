@@ -66,7 +66,7 @@
 ; when any interrupt occurs if interrupt priorities are not enabled.
 
 		ORG	0x0008
-
+		decf tmr_cnt
 		bra	HighInt		;go to high priority interrupt routine
 
 ;******************************************************************************
@@ -131,10 +131,15 @@ Main:
 		;movlw b'00001100'	; configure timer postscale, prescale and turn on timer
 		;movwf T2CON
 
-		; start timer 1 for half bit
-;		banksel PR1
-;		movlw 0x
-;		bcf PIR1,TMR1IF
+		; start timer 0 for half bit
+		movlw b'00001000'
+		movwf T0CON
+		movlw 0x00
+		movwf TMR0H
+		movwf TMR0L
+		bcf INTCON,TMR0IF
+		bsf INTCON,TMR0IE
+		bsf INTCON,GIE
 		
 
 		; start timer 2 for pwm
@@ -149,6 +154,7 @@ Main:
 		bcf PIR1,TMR2IF
 		bsf PIE1,TMR2IE ; Enable Timer1 interrupt
 
+		bsf T0CON,TMR0ON
 		bsf T2CON,TMR2ON
 		
 		;bcf T2CON,T2CKPS1
@@ -165,7 +171,7 @@ Main:
 
 		;bcf PORTB,0x03
 loop:
-IP	goto loop
+	goto loop
 
 
 ;******************************************************************************
