@@ -41,6 +41,10 @@
 ; These variables are only needed if low priority interrupts are used. 
 ; More variables may be needed to store other special function registers used
 ; in the interrupt routines.
+		
+		bit_buffer_h equ 0x00
+		bit_buffer_l equ 0x01
+		bit_ctr equ 0x02
 
 		tmr_done equ 0x10
 
@@ -66,7 +70,7 @@
 ; when any interrupt occurs if interrupt priorities are not enabled.
 
 		ORG	0x0008
-		decf tmr_cnt
+		
 		bra	HighInt		;go to high priority interrupt routine
 
 ;******************************************************************************
@@ -82,81 +86,167 @@
 ; the low priority interrupt vector.
 
 HighInt:
-
-;	*** high priority interrupt code goes here ***
 		
-		decf tmr_cnt
+		; stop timers
+		bcf T0CON,TMR0ON
+		bcf T2CON,TMR2ON
+		
+		bcf INTCON,TMR0IF
+		bsf tmr_done,0
+		
 		retfie	FAST
 
 ;******************************************************************************
 ;Timer interrupt service routine
 
-		ORG	0x0010
-		
-		btfsc PIR1, TMR2IF
-		bra T2_ISR
-
-		retfie
-
-T2_ISR
-		decf tmr_cnt
-		retfie
+;		ORG	0x0010
+;		
+;		btfsc PIR1, TMR2IF
+;		bra T2_ISR
+;
+;		retfie
+;
+;T2_ISR
+;		decf tmr_cnt
+;		retfie
 		
 
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
 
-Main:
+init_portc:
 		; configure port c
 		clrf PORTC
 		clrf LATC
 		clrf TRISC
-		
-		;bsf PORTB,0x01
+		return
 
-;		; configure pwm module
+init_tmr:
+		; configure pwm module
 		banksel PR2
-		movlw 0x44			; configure period time with 0x44
+		movlw 0x08 ;0x44			; configure period time with 0x44
 		movwf PR2
 
-		movlw b'00001100' ;b'00000100'	; configure duty cycle with 0x11
+		movlw b'00000011' ;b'00000100'	; configure duty cycle with 0x11
 		movwf CCPR2L
 		movlw b'00111100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
 		movwf CCP2CON
-		
-		;bcf T2CON,T2CKPS1	; configure timer prescale value with 1
-		;bcf T2CON,T2CKPS0
-		;bsf T2CON,TMR2ON	; enable timer
-		;movlw b'00001100'	; configure timer postscale, prescale and turn on timer
-		;movwf T2CON
 
-		; start timer 0 for half bit
+		movlw b'00000000'
+		movwf T2CON
+
+		; configure timer 0 for delay
 		movlw b'00001000'
 		movwf T0CON
-		movlw 0xFF
-		movwf TMR0H
-		movlw 0x52
-		movwf TMR0L
+	
 		bcf INTCON,TMR0IF ;interrupt flag
 		bsf INTCON,TMR0IE ;interrupt enable
 		bsf INTCON2,TMR0IP ;high priority interrupt
 		bsf INTCON,GIE ;general interrupt enable
+
+		movlw 0x00
+		movwf tmr_done		
+
+		return
+
+tmr_delay:
+		;start timer 0 for pausing
+		movlw 0xFF ;0xF0
+		movwf TMR0H
+		movlw 0xF0 ;0x52
+		movwf TMR0L
+		bsf T0CON,TMR0ON
+		call delay_loop
+		return
+
+pwm_delay:
+		;load timer 0 for half bit
+		movlw 0xFF ;0xF7
+		movwf TMR0H
+		movlw 0xE0 ;0x52
+		movwf TMR0L
+		;load timer 2 for pwm
+		movlw 0x00
+		movwf TMR2
+		bsf LATC,1 ;set first pulse manually
+
+		bsf T0CON,TMR0ON
+		bsf T2CON,TMR2ON
+
+		call delay_loop
+
+		return
+
+;wait for interrupt to end half bit
+delay_loop
+		btfss tmr_done,0
+		bra delay_loop
+		bcf tmr_done,0
+		return
+		
+
+send_0:
+		call tmr_delay
+		call pwm_delay
+		return
+
+send_1:
+		call pwm_delay
+		call tmr_delay
+		return
+
+Main:
+		; temporary
+		movlw b'10110101' ;b'00110101'
+		movwf bit_buffer_h
+		movlw b'00110101'
+		movwf bit_buffer_l
+		movlw 0x0F
+		movwf bit_ctr
+		; initialize
+		call init_portc
+		call init_tmr
+
+		; start sending command
+send_bit
+		rlcf bit_buffer_l
+		rlcf bit_buffer_h
+		btfss STATUS,C
+		call send_0
+		call send_1
+		decfsz bit_ctr
+		bra send_bit
+
+
+
+
+
+
+
+
+
+
+
+
+		; start timer 0 for half bit
+		
+		;movlw 0xFF
+		;movwf TMR0H
+		;movlw 0x52
+		;movwf TMR0L
 		
 
 		; start timer 2 for pwm
-		movlw 0x20
-		movwf tmr_cnt
+		;movlw 0x20
+		;movwf tmr_cnt
 		
-		movlw b'00000000'
-		movwf T2CON
-		movlw 0x00
-		movwf TMR2
+		
 
-		bcf PIR1,TMR2IF
-		bsf PIE1,TMR2IE ; Enable Timer1 interrupt
+		;bcf PIR1,TMR2IF
+		;bsf PIE1,TMR2IE ; Enable Timer1 interrupt
 
-		bsf T0CON,TMR0ON
+		;bsf T0CON,TMR0ON
 		;bsf T2CON,TMR2ON
 		
 		;bcf T2CON,T2CKPS1

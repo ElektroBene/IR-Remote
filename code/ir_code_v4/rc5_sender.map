@@ -1,0 +1,70 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Thu May 23 19:04:33 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_2       code   0x000000    program   0x000004
+                   .org_3       code   0x000008    program   0x0000aa
+.config_300001_RC5_SENDER.O    romdata   0x300001    program   0x000001
+.config_300002_RC5_SENDER.O    romdata   0x300002    program   0x000001
+.config_300003_RC5_SENDER.O    romdata   0x300003    program   0x000001
+.config_300005_RC5_SENDER.O    romdata   0x300005    program   0x000001
+.config_300006_RC5_SENDER.O    romdata   0x300006    program   0x000001
+.config_300008_RC5_SENDER.O    romdata   0x300008    program   0x000001
+.config_300009_RC5_SENDER.O    romdata   0x300009    program   0x000001
+.config_30000A_RC5_SENDER.O    romdata   0x30000a    program   0x000001
+.config_30000B_RC5_SENDER.O    romdata   0x30000b    program   0x000001
+.config_30000C_RC5_SENDER.O    romdata   0x30000c    program   0x000001
+.config_30000D_RC5_SENDER.O    romdata   0x30000d    program   0x000001
+                   .org_1       code   0xf00000    program   0x000010
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x0000b1      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+                            0xf00000    0xf0000f      
+            201 out of 50200 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                     Main   0x000084    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+               delay_loop   0x000068    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+               init_portc   0x000014    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                 init_tmr   0x00001c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                     loop   0x0000aa    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                pwm_delay   0x000050    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                   send_0   0x000070    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                   send_1   0x00007a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                 send_bit   0x000098    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                tmr_delay   0x000040    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+               init_portc   0x000014    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                 init_tmr   0x00001c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                tmr_delay   0x000040    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                pwm_delay   0x000050    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+               delay_loop   0x000068    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                   send_0   0x000070    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                   send_1   0x00007a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                     Main   0x000084    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                 send_bit   0x000098    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+                     loop   0x0000aa    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\rc5_sender.ASM
+
+

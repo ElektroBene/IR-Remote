@@ -1,5 +1,5 @@
 MPLINK 4.49, Linker
-Linker Map File - Created Wed May 22 09:59:32 2024
+Linker Map File - Created Wed May 22 19:59:21 2024
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
@@ -7,7 +7,7 @@ Linker Map File - Created Wed May 22 09:59:32 2024
                    .org_0       code   0x000000    program   0x000000
                    .org_2       code   0x000000    program   0x000004
                    .org_3       code   0x000008    program   0x000008
-                   .org_4       code   0x000010    program   0x00004a
+                   .org_4       code   0x000010    program   0x00004c
 .config_300001_18F4525TEMP(1)(1).O    romdata   0x300001    program   0x000001
 .config_300002_18F4525TEMP(1)(1).O    romdata   0x300002    program   0x000001
 .config_300003_18F4525TEMP(1)(1).O    romdata   0x300003    program   0x000001
@@ -27,12 +27,12 @@ Linker Map File - Created Wed May 22 09:59:32 2024
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000003      
-                            0x000008    0x000059      
+                            0x000008    0x00005b      
                             0x300001    0x300003      
                             0x300005    0x300006      
                             0x300008    0x30000d      
                             0xf00000    0xf0000f      
-            113 out of 50200 program addresses used, program memory utilization is 0%
+            115 out of 50200 program addresses used, program memory utilization is 0%
 
 
 
@@ -42,7 +42,7 @@ Linker Map File - Created Wed May 22 09:59:32 2024
                   HighInt   0x00000c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
                      Main   0x00001a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
                    T2_ISR   0x000016    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
-                     loop   0x000052    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
+                     loop   0x000054    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
 
 
 
@@ -52,6 +52,6 @@ Linker Map File - Created Wed May 22 09:59:32 2024
                   HighInt   0x00000c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
                    T2_ISR   0x000016    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
                      Main   0x00001a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
-                     loop   0x000052    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
+                     loop   0x000054    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_code_v4\18F4525TEMP(1)(1).ASM
 
 

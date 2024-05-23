@@ -33,7 +33,7 @@ file_001=no
 file_000=no
 file_001=no
 [FILE_INFO]
-file_000=18F4525TEMP(1)(1).ASM
+file_000=rc5_sender.ASM
 file_001=p18f4525.inc
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
