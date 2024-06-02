@@ -86,56 +86,84 @@ HighInt:
 ;	*** high priority interrupt code goes here ***
 bcf INTCON, INT0IF
 
-check	btfss PORTB, RB0 ; Kann hier den Pin nicht richtig auslesen. PBADEN oder RBPU ? 
-        retfie 
-        bcf LATB, 1 ; Schalte LED an RB1 aus
-        ;bcf INTCON, INT0IF  ; Clear interrupt Flag
-        retfie
-        goto check 
+check	
+		nop
+		nop
 
+		btfss PORTB, RB0 ; Kann hier den Pin nicht richtig auslesen. PBADEN oder RBPU ? 
+        retfie 
+		nop 
+		nop
+		nop
+        ; bcf LATB, 1Schalte LED an RB1 aus
+        ;bcf INTCON, INT0IF  ; Clear interrupt Flag
+        ;retfie
+        goto check 
+		
 		
 
 
 
 LowInt:
+nop
+nop
 
         retfie 
-       
+
+routine 
+       nop
+       nop
+       nop
+       return      
+
+Taste4
+      nop
+      nop 
+      nop 
+	  nop
+      return 
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
 
 Main:
 
-clrf PORTB
-clrf LATB
-
-movlw 0x0F ; RB<4:0> digital I/O Pins (siehe addcon
-movwf ADCON1
-
-movlw 0x01
-movwf TRISB 
-
-bcf INTCON,  INT0IF ; Clears Flag
-bsf INTCON,  INT0IE ; change: Reihen folge getausch 
-bsf INTCON2, INTEDG0 ; sensitive on rising edge 
-bsf INTCON,  GIE ; Sets Globes interrupt Enable bit
-
-; Priority ändern
-
-; muss ich jetzt noch die Flanke einstellen 
-
-bsf LATB,1 
-
-loop bsf LATB,RB2         ; LED an
-     bsf LATB, RB3
-     bsf INTCON, INT0IF
-goto loop
 
 
 
+      clrf	 PORTB      
+     
+      bcf    ADCON0,ADON ; AD Converter disabled 
+      
+      movlw	0xFF
+      movwf	TRISB  
 
-;******************************************************************************
-;End of program
-	goto $
-		END
+     movlw	 0xFF
+     movwf	 ADCON1
+
+      bcf 	 INTCON, INT0IF
+      bcf 	INTCON2, RBPU
+	;bsf		INTCON, RBIE
+      
+      bsf 	 INTCON, INT0IE
+      bcf 	 INTCON2, INTEDG0
+      bsf 	 INTCON, GIEH  
+	bsf 	 INTCON, GIEL 
+      
+	  bsf RCON,IPEN 
+    
+
+
+; Am schalter RB0 kommt kein High Signal default - 1,7V und dann 0 V bei druecken
+; War die ganze zeit nur auf 1,7V, weil jumper 6 drinnen war beim board 
+           
+ MLOOP  
+nop
+nop 
+nop
+
+nop
+
+GOTO  MLOOP  
+
+End
