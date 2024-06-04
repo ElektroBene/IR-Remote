@@ -130,7 +130,7 @@ Main:
 
 
 
-; Routine für INT0- INT2 
+; Routine fÃ¼r INT0- INT2 
       clrf	 PORTB      
      
       bcf    ADCON0,ADON ; AD Converter disabled 
@@ -150,10 +150,10 @@ Main:
     bcf 	INTCON2,	 RBPU
 
 ; Enable Interrupts       
-    bsf 	INTCON, 	INT0IE
+	bsf 	INTCON, 	INT0IE
 	bsf		INTCON3,	INT1IE
 	bsf		INTCON3,	INT2IE
-    bsf		INTCON,     RBIE
+	bsf		INTCON,     RBIE
 
 ; Set edges in this case on falling edge 
     bcf 	INTCON2, 	INTEDG0
@@ -162,19 +162,18 @@ Main:
 
 ; Interrupt priority of int1 / 2 needs to be configured 
 
-    bsf 	INTCON, 	GIEH  
-	bsf 	INTCON, 	GIEL 
-      
-	bsf 	RCON,IPEN ; Enables Priorities 
+   	bsf 	INTCON, 	GIEH  ; Enables high and low Priorities 
+	bsf 	INTCON, 	GIEL  
+	bsf 	RCON,		IPEN ; Enables Priorities  
 
-; Setting Priority high for INT1, INT2 
-	bsf		INTCON3,	INT2IP
-	bsf		INTCON3,	INT1IP
-    bcf		INCON2,		RBIP ; Low Priority for interrupt on change 
+; Setting Priority high for INT1, INT2 and RB On Change
+	bsf	INTCON3,	INT2IP
+	bsf	INTCON3,	INT1IP
+	bsf	INCON2,		RBIP 
     
 
 
-; Am schalter RB0 kommt kein High Signal default - 1,7V und dann 0 V beo drücken
+; Am schalter RB0 kommt kein High Signal default - 1,7V und dann 0 V beo drÃ¼cken
 ; War die ganze zeit nur auf 1,7V, weil jumper 6 drinnen war beim board 
 ; Mit Multimeter an Pin gegen ground messen !!!! ob das was du planst auch wirklich passiert 
            
