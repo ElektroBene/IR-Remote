@@ -39,6 +39,7 @@
 ;******************************************************************************
 ;Variable definitions
 	
+		sleep_en equ 0x00
 
 ;******************************************************************************
 ;EEPROM data
@@ -72,7 +73,13 @@
 
 HighInt:
 
-;	*** high priority interrupt code goes here ***
+		movlw 0x0F
+		movwf sleep_en
+
+		bcf 	INTCON,INT0IF
+		bcf		INTCON3,INT1IF
+		bcf		INTCON3,INT2IF
+    	bcf		INTCON,RBIF
 
 
 		retfie	FAST
@@ -98,11 +105,81 @@ LowInt:
 		retfie	FAST
 
 ;******************************************************************************
+;Interrupt configuration routines
+init_portb:
+		; Routine f r INT0- INT2 
+		clrf	 PORTB      
+     
+		bcf    ADCON0,ADON ; AD Converter disabled 
+      
+		movlw	0xFF
+		movwf	TRISB  
+
+		movlw	 0xFF
+		movwf	 ADCON1
+; Clear Interrupt flags 
+
+    	bcf 	INTCON,INT0IF
+		bcf		INTCON3,INT1IF
+		bcf		INTCON3,INT2IF
+    	bcf		INTCON,RBIF
+    
+    	bcf 	INTCON2,RBPU
+
+; Enable Interrupts       
+    	bsf 	INTCON,INT0IE
+		bsf		INTCON3,INT1IE
+		bsf		INTCON3,INT2IE
+    	bsf		INTCON,RBIE
+
+; Set edges in this case on falling edge 
+    	bcf 	INTCON2,INTEDG0
+    	bcf		INTCON2,INTEDG1
+		bcf		INTCON2,INTEDG2
+
+; Interrupt priority of int1 / 2 needs to be configured 
+
+    	bsf 	INTCON,GIEH  
+		bsf 	INTCON,GIEL 
+      
+		bsf 	RCON,IPEN ; Enables Priorities 
+
+; Setting Priority high for INT1, INT2 
+		bsf		INTCON3,INT2IP
+		bsf		INTCON3,INT1IP
+    	bsf		INTCON2,RBIP ; Low Priority for interrupt on change
+
+		return
+
+init_i_o:
+		clrf PORTA
+		movlw	0xFF
+		movwf	TRISA
+		clrf PORTC
+		movlw	0xFF
+		movwf	TRISC
+		clrf PORTD
+		movlw	0xFF
+		movwf	TRISD
+		return
+
+;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
 
 Main:
+		call init_portb
+		call init_i_o
 
+		movlw 0x00
+		movwf sleep_en
+
+		bcf OSCCON,IDLEN
+		sleep
+
+		nop
+		movlw 0xF0
+		movwf sleep_en
 
 
 ;******************************************************************************
