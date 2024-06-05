@@ -23,8 +23,8 @@
 ;                                                                             *
 ;******************************************************************************
 
-	LIST P=18F4525	;directive to define processor
-	#include "P18F4525.INC"	;processor specific variable definitions
+LIST P=18F4525 ;directive to define processor
+#include "P18F4525.INC" ;processor specific variable definitions
 
 ;******************************************************************************
 ;Configuration bits
@@ -34,38 +34,37 @@
 
 
 ;   Oscillator Selection:
-    CONFIG	OSC = XT             ;LP
+    CONFIG OSC = XT             ;LP
     CONFIG WDT = OFF
     CONFIG LVP = OFF
 
 ;******************************************************************************
 ;Variable definitions
-	
 
 ;******************************************************************************
 ;EEPROM data
 ; Data to be programmed into the Data EEPROM is defined here
 
-		ORG	0xf00000
+ORG 0xf00000
 
-		DE	"Test Data",0,1,2,3,4,5
+DE "Test Data",0,1,2,3,4,5
 
 ;******************************************************************************
 ;Reset vector
 ; This code will start executing when a reset occurs.
 
-		ORG	0x0000
+ORG 0x0000
 
-		goto	Main		;go to start of main code
+goto Main ;go to start of main code
 
 ;******************************************************************************
 ;High priority interrupt vector
 ; This code will start executing when a high priority interrupt occurs or
 ; when any interrupt occurs if interrupt priorities are not enabled.
 
-		ORG	0x0008
+ORG 0x0008
 
-		bra	HighInt		;go to high priority interrupt routine	
+bra HighInt ;go to high priority interrupt routine 
 
 
 
@@ -73,7 +72,7 @@
 
         ORG 0x0018
         nop
-		nop
+nop
         bra LowInt 
 
 ;******************************************************************************
@@ -83,26 +82,22 @@
 
 HighInt:
 
-;	*** high priority interrupt code goes here ***
+; *** high priority interrupt code goes here ***
 ;bcf INTCON, INT0IF
 
 ; soll zuerst schauen ob ein RB on change flag gerised is 
 
 
-	
-btfsc	INTCON,		RBIF 	; 	was pin 4/5 pressed?
-bra	RBonChange 	; 	IN Routine abfragen, welcher Port High signal hat, dann befehl, dann flagclear + retfie  
-btfsc 	INTCON,		INT0IF ; was Pin 0 pressed?
-bra     INT0_R 		; Yes Pin 0 was Pressed send command
-btfsc   INTCON3,	INT1IF ; was Pin 1 pressed? 
-bra	INT1_R  
-btfsc	INTCON3,	INT2IF ; was Pin 2 pressed 
-bra	INT2_R	
+btfsc INTCON, RBIF ; was pin 4/5 pressed?
+bra RBonChange ; IN Routine abfragen, welcher Port High signal hat, dann befehl, dann flagclear + retfie  
+btfsc INTCON, INT0IF ; was Pin 0 pressed?
+bra     SendRB0 ; Yes Pin 0 was Pressed send command
+btfsc   INTCON3, INT1IF ; was Pin 1 pressed? 
+bra		SendRB1  
+btfsc INTCON3, INT2IF ; was Pin 2 pressed 
+bra		SendRB2
 
         retfie 
-	
-		
-		
 
 
 
@@ -115,29 +110,47 @@ nop
    
 RBonChange:
 ; schauen an welchem pin high, dann sende routine und dann return, flag clear und retfie 
-btfsc	PORTB,4 		;Test Port RB4 auf High signal 
-bra	SendRB4; in routine sende befehl und return 
-btfsc	PORTB,5			;Test Port RB5 
-bra	SendRB5; 
-bcf		INTCON,		 RBIF ; andernfalls keiner der Pins 
+btfsc PORTB,4 ;Test Port RB4 auf High signal 
+bra SendRB4; in routine sende befehl und return 
+btfsc PORTB,5 ;Test Port RB5 
+bra SendRB5; 
+bcf INTCON, RBIF ; andernfalls keiner der Pins 
 
 retfie; oder return ???  
 
-INT0_R: 
-bra		SendRB0
-bcf 		INTCON,		 INT0IF	; clear flag 
-retfie; oder return ??
 
-INT1_R:
-bra		SendRB1
-bcf		INTCON3,	 INT1IF	; clear flag 
-retfie; oder return 
 
-INT2_R: 
-bra		SendRB2 
-bcf		INTCON3,	 INT2IF	;clear flag 
-retfie; oder return 
-    
+
+SendRB0:
+nop ; sende routine einfügen 
+nop
+bcf INTCON, INT0IF
+return 
+
+SendRB1:
+nop ; sende rputine einfügen 
+nop
+bcf INTCON3, INT1IF ; clear flag 
+return 
+
+
+SendRB2: 
+nop ; sende routine einfügen 
+nop
+bcf INTCON3, INT2IF ;clear flag 
+retfie 
+
+SendRB4:
+nop
+nop
+bcf INTCON, RBIF
+return 
+
+SendRB5:
+nop
+nop
+bcf INTCON, RBIF
+return 
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
@@ -147,45 +160,45 @@ Main:
 
 
 ; Routine für INT0- INT2 
-      clrf	 PORTB      
+      clrf PORTB      
      
       bcf    ADCON0,ADON ; AD Converter disabled 
       
-      movlw	0xFF
-      movwf	TRISB  
+      movlw 0xFF
+      movwf TRISB  
 
-     movlw	 0xFF
-     movwf	 ADCON1
+     movlw 0xFF
+     movwf ADCON1
 ; Clear Interrupt flags 
 
-	bcf 		INTCON,		 INT0IF
-	bcf		INTCON3,	 INT1IF
-	bcf		INTCON3,	 INT2IF
-	bcf		INTCON,		 RBIF
+bcf INTCON, INT0IF
+bcf INTCON3, INT1IF
+bcf INTCON3, INT2IF
+bcf INTCON, RBIF
     
-	bcf 		INTCON2,	 RBPU
+bcf INTCON2, RBPU
 
 ; Enable Interrupts       
-	bsf 		INTCON, 	INT0IE
-	bsf		INTCON3,	INT1IE
-	bsf		INTCON3,	INT2IE
-	bsf		INTCON,    	RBIE
+bsf INTCON, INT0IE
+bsf INTCON3, INT1IE
+bsf INTCON3, INT2IE
+bsf INTCON,    RBIE
 
 ; Set edges in this case on falling edge 
-	bcf	 	INTCON2, 	INTEDG0
-	bcf		INTCON2,	INTEDG1
-	bcf		INTCON2,	INTEDG2
+bcf INTCON2, INTEDG0
+bcf INTCON2, INTEDG1
+bcf INTCON2, INTEDG2
 
 ; Interrupt priority of int1 / 2 needs to be configured 
 
-   	bsf 	INTCON, 	GIEH  ; Enables high and low Priorities 
-	bsf 	INTCON, 	GIEL  
-	bsf 	RCON,		IPEN ; Enables Priorities  
+    bsf INTCON, GIEH  ; Enables high and low Priorities 
+bsf INTCON, GIEL  
+bsf RCON, IPEN ; Enables Priorities  
 
 ; Setting Priority high for INT1, INT2 and RB On Change
-	bsf	INTCON3,	INT2IP
-	bsf	INTCON3,	INT1IP
-	bsf	INCON2,		RBIP 
+bsf INTCON3, INT2IP
+bsf INTCON3, INT1IP
+bsf INTCON2, RBIP 
     
 
 
@@ -197,7 +210,7 @@ Main:
 nop
 nop 
 nop
-
+;bsf INTCON3, INT2IF;
 nop
 
 GOTO  MLOOP  
