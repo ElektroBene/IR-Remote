@@ -84,21 +84,23 @@
 HighInt:
 
 ;	*** high priority interrupt code goes here ***
-bcf INTCON, INT0IF
+;bcf INTCON, INT0IF
 
-check	
-		nop
-		nop
+; soll zuerst schauen ob ein RB on change flag gerised is 
 
-		btfss PORTB, RB0 ; Kann hier den Pin nicht richtig auslesen. PBADEN oder RBPU ? 
+
+	
+btfsc	INTCON,		RBIF 	; 	was pin 4/5 pressed?
+bra	RBonChange 	; 	IN Routine abfragen, welcher Port High signal hat, dann befehl, dann flagclear + retfie  
+btfsc 	INTCON,		INT0IF ; was Pin 0 pressed?
+bra     INT0_R 		; Yes Pin 0 was Pressed send command
+btfsc   INTCON3,	INT1IF ; was Pin 1 pressed? 
+bra	INT1_R  
+btfsc	INTCON3,	INT2IF ; was Pin 2 pressed 
+bra	INT2_R	
+
         retfie 
-		nop 
-		nop
-		nop
-        ; bcf LATB, 1Schalte LED an RB1 aus
-        ;bcf INTCON, INT0IF  ; Clear interrupt Flag
-        ;retfie
-        goto check 
+	
 		
 		
 
@@ -110,18 +112,32 @@ nop
 
         retfie 
 
-routine 
-       nop
-       nop
-       nop
-       return      
+   
+RBonChange:
+; schauen an welchem pin high, dann sende routine und dann return, flag clear und retfie 
+btfsc	PORTB,4 		;Test Port RB4 auf High signal 
+bra	SendRB4; in routine sende befehl und return 
+btfsc	PORTB,5			;Test Port RB5 
+bra	SendRB5; 
+bcf		INTCON,		 RBIF ; andernfalls keiner der Pins 
 
-Taste4
-      nop
-      nop 
-      nop 
-	  nop
-      return 
+retfie; oder return ???  
+
+INT0_R: 
+bra		SendRB0
+bcf 		INTCON,		 INT0IF	; clear flag 
+retfie; oder return ??
+
+INT1_R:
+bra		SendRB1
+bcf		INTCON3,	 INT1IF	; clear flag 
+retfie; oder return 
+
+INT2_R: 
+bra		SendRB2 
+bcf		INTCON3,	 INT2IF	;clear flag 
+retfie; oder return 
+    
 ;******************************************************************************
 ;Start of main program
 ; The main program code is placed here.
@@ -142,22 +158,22 @@ Main:
      movwf	 ADCON1
 ; Clear Interrupt flags 
 
-    bcf 	INTCON,		 INT0IF
+	bcf 		INTCON,		 INT0IF
 	bcf		INTCON3,	 INT1IF
 	bcf		INTCON3,	 INT2IF
-    bcf		INTCON,		 RBIF
+	bcf		INTCON,		 RBIF
     
-    bcf 	INTCON2,	 RBPU
+	bcf 		INTCON2,	 RBPU
 
 ; Enable Interrupts       
-	bsf 	INTCON, 	INT0IE
+	bsf 		INTCON, 	INT0IE
 	bsf		INTCON3,	INT1IE
 	bsf		INTCON3,	INT2IE
-	bsf		INTCON,     RBIE
+	bsf		INTCON,    	RBIE
 
 ; Set edges in this case on falling edge 
-    bcf 	INTCON2, 	INTEDG0
-    bcf		INTCON2,	INTEDG1
+	bcf	 	INTCON2, 	INTEDG0
+	bcf		INTCON2,	INTEDG1
 	bcf		INTCON2,	INTEDG2
 
 ; Interrupt priority of int1 / 2 needs to be configured 
