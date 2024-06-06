@@ -87,19 +87,65 @@
 ; The high priority interrupt code is placed here to avoid conflicting with
 ; the low priority interrupt vector.
 
-HighInt:
+HighInt:		
+		; test interrupt flags to identify pressed button
+		btfsc INTCON,RBIF	; pin 4/5 pressed
+		call send_rb_on_change
+		btfsc INTCON,INT0IF	; pin 0 pressed
+		call send_rb_0
+		btfsc INTCON,INT1IF	; pin 1 pressed
+		call send_rb_1
+		btfsc INTCON,INT2IF	; pin 2 pressed
+		call send_rb_2
 
-		; temporary
-		movlw b'10110101' ;b'00110101'
+		retfie	FAST
+
+rb_on_change:
+		; check if pin 4 or 5 was pressed
+		btfsc PORTB,4
+		call send_rb_4
+		btfsc PORTB,5
+		call send_rb_5
+		bcf INTCON,RBIF
+		return
+
+send_rb_0:					; send stop command
+		movlw b'00110101'
+		movwf bit_buffer_h
+		movlw b'00110110'
+		movwf bit_buffer_l
+		bcf INTCON,INT0IF
+		return
+
+send_rb_1:					; send forward command
+		movlw b'00110101'
+		movwf bit_buffer_h
+		movlw b'00110100'
+		movwf bit_buffer_l
+		bcf INTCON,INT1IF
+		return
+
+send_rb_2:					; send pause command
+		movlw b'00110101'
+		movwf bit_buffer_h
+		movlw b'00110000'
+		movwf bit_buffer_l
+		bcf INTCON,INT2IF
+		return
+
+send_rb_4:					; send play command
+		movlw b'00110101'
 		movwf bit_buffer_h
 		movlw b'00110101'
 		movwf bit_buffer_l
+		return
 
-		
-		call send_bits
-
-
-		retfie	FAST
+send_rb_5:					; send backward command
+		movlw b'00110101'
+		movwf bit_buffer_h
+		movlw b'00110010'
+		movwf bit_buffer_l
+		return
 
 ;******************************************************************************
 ;Low priority interrupt routine
@@ -200,6 +246,16 @@ init_tmr:
 
 		return
 
+init_i_o:
+		; configure all remaining ports as inputs for sleep mode
+		clrf 	PORTA
+		movlw	0xFF
+		movwf	TRISA
+		clrf 	PORTD
+		movlw	0xFF
+		movwf	TRISD
+		return
+
 
 ;******************************************************************************
 ; Helper sender routines
@@ -232,7 +288,7 @@ pwm_delay:
 		return
 
 ;wait for interrupt to end half bit
-delay_loop
+delay_loop:
 		btfss tmr_done,0
 		bra delay_loop
 		bcf tmr_done,0
@@ -258,6 +314,11 @@ send_command:
 		rlcf bit_buffer_h
 		rlcf bit_buffer_l
 		rlcf bit_buffer_h
+		;init bit counter
+		movlw d'14'
+		movwf bit_ctr
+		goto send_bit
+		return
 
 send_bit:
 		rlcf bit_buffer_l
@@ -278,6 +339,14 @@ Main:
 		call init_portb
 		call init_portc
 		call init_tmr
+		call init_i_o
+
+		bcf OSCCON,IDLEN
+go_to_sleep
+		sleep
+		nop
+		call send_command
+		bra go_to_sleep
 
 
 
