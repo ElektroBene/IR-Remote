@@ -1,0 +1,92 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Thu Jun 13 19:09:08 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_2       code   0x000000    program   0x000004
+                   .org_3       code   0x000008    program   0x000002
+                   .org_4       code   0x000018    program   0x000166
+.config_300001_IR_REMOTE_MAIN.O    romdata   0x300001    program   0x000001
+.config_300002_IR_REMOTE_MAIN.O    romdata   0x300002    program   0x000001
+.config_300003_IR_REMOTE_MAIN.O    romdata   0x300003    program   0x000001
+.config_300005_IR_REMOTE_MAIN.O    romdata   0x300005    program   0x000001
+.config_300006_IR_REMOTE_MAIN.O    romdata   0x300006    program   0x000001
+.config_300008_IR_REMOTE_MAIN.O    romdata   0x300008    program   0x000001
+.config_300009_IR_REMOTE_MAIN.O    romdata   0x300009    program   0x000001
+.config_30000A_IR_REMOTE_MAIN.O    romdata   0x30000a    program   0x000001
+.config_30000B_IR_REMOTE_MAIN.O    romdata   0x30000b    program   0x000001
+.config_30000C_IR_REMOTE_MAIN.O    romdata   0x30000c    program   0x000001
+.config_30000D_IR_REMOTE_MAIN.O    romdata   0x30000d    program   0x000001
+                   .org_1       code   0xf00000    program   0x000010
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x000009      
+                            0x000018    0x00017d      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+                            0xf00000    0xf0000f      
+            391 out of 50200 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00001a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   LowInt   0x00007c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                     Main   0x000158    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               delay_loop   0x000116    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+              go_to_sleep   0x00016e    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 init_i_o   0x0000e0    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               init_portb   0x000086    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               init_portc   0x0000b8    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 init_tmr   0x0000c0    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                pwm_delay   0x0000fe    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   send_0   0x00011e    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   send_1   0x000128    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 send_bit   0x000144    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+             send_command   0x000132    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_0   0x000044    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_1   0x000050    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_2   0x00005c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_4   0x000068    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_5   0x000072    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+        send_rb_on_change   0x000034    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                tmr_delay   0x0000ee    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00001a    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+        send_rb_on_change   0x000034    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_0   0x000044    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_1   0x000050    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_2   0x00005c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_4   0x000068    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                send_rb_5   0x000072    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   LowInt   0x00007c    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               init_portb   0x000086    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               init_portc   0x0000b8    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 init_tmr   0x0000c0    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 init_i_o   0x0000e0    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                tmr_delay   0x0000ee    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                pwm_delay   0x0000fe    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+               delay_loop   0x000116    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   send_0   0x00011e    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                   send_1   0x000128    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+             send_command   0x000132    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                 send_bit   0x000144    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+                     Main   0x000158    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+              go_to_sleep   0x00016e    program     static B:\Dokumente\Studium\6. Semester\MSE\Volpe\IR-Remote\code\ir_remote_main_code\ir_remote_main.ASM
+
+

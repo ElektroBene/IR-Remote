@@ -46,6 +46,10 @@
 		bit_buffer_l equ 0x01
 		
 		bit_ctr equ 0x02
+
+		command_ctr equ 0x03
+
+		tmr_done equ 0x04
 		
 
 ;******************************************************************************
@@ -100,7 +104,7 @@ HighInt:
 
 		retfie	FAST
 
-rb_on_change:
+send_rb_on_change:
 		; check if pin 4 or 5 was pressed
 		btfsc PORTB,4
 		call send_rb_4
@@ -157,6 +161,9 @@ LowInt:
 		bcf T2CON,TMR2ON
 		
 		bcf INTCON,TMR0IF
+
+		; stop flag for delay loop
+		bsf tmr_done,0
 
 		retfie
 
@@ -221,12 +228,12 @@ init_portc:
 init_tmr:
 		; configure pwm module
 		banksel PR2
-		movlw 0x08 ;0x44			; configure period time with 0x44
+		movlw 0x44			; configure period time with 0x44
 		movwf PR2
 
-		movlw b'00000011' ;b'00000100'	; configure duty cycle with 0x11
+		movlw b'00000101' ;b'00000100'	; configure duty cycle with 0x11
 		movwf CCPR2L
-		movlw b'00111100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
+		movlw b'00101100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
 		movwf CCP2CON
 
 		movlw b'00000000'
@@ -261,9 +268,9 @@ init_i_o:
 ; Helper sender routines
 tmr_delay:
 		;start timer 0 for pausing
-		movlw 0xFF ;0xF0
+		movlw 0xFF
 		movwf TMR0H
-		movlw 0xF0 ;0x52
+		movlw 0x52
 		movwf TMR0L
 		bsf T0CON,TMR0ON
 		call delay_loop
@@ -271,9 +278,9 @@ tmr_delay:
 
 pwm_delay:
 		;load timer 0 for half bit
-		movlw 0xFF ;0xF7
+		movlw 0xFF
 		movwf TMR0H
-		movlw 0xE0 ;0x52
+		movlw 0x52
 		movwf TMR0L
 		;load timer 2 for pwm
 		movlw 0x00
@@ -341,11 +348,16 @@ Main:
 		call init_tmr
 		call init_i_o
 
+		; temp: send command 256 times
+		movlw 0xFF
+		movwf command_ctr
+
 		bcf OSCCON,IDLEN
 go_to_sleep
 		sleep
 		nop
 		call send_command
+		decfsz command_ctr
 		bra go_to_sleep
 
 
