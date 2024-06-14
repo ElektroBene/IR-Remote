@@ -44,12 +44,13 @@
 
 		bit_buffer_h equ 0x00
 		bit_buffer_l equ 0x01
+		bit_buffer_toggle equ 0x02
 		
-		bit_ctr equ 0x02
+		bit_ctr equ 0x10
 
-		command_ctr equ 0x03
+		command_ctr equ 0x11
 
-		tmr_done equ 0x04
+		tmr_done equ 0x12
 		
 
 ;******************************************************************************
@@ -91,7 +92,9 @@
 ; The high priority interrupt code is placed here to avoid conflicting with
 ; the low priority interrupt vector.
 
-HighInt:		
+HighInt:
+		; toggle bit
+		btg bit_buffer_toggle,0
 		; test interrupt flags to identify pressed button
 		btfsc INTCON,RBIF	; pin 4/5 pressed
 		call send_rb_on_change
@@ -116,6 +119,8 @@ send_rb_on_change:
 send_rb_0:					; send stop command
 		movlw b'00110101'
 		movwf bit_buffer_h
+		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		bsf bit_buffer_h,3
 		movlw b'00110110'
 		movwf bit_buffer_l
 		bcf INTCON,INT0IF
@@ -124,6 +129,8 @@ send_rb_0:					; send stop command
 send_rb_1:					; send forward command
 		movlw b'00110101'
 		movwf bit_buffer_h
+		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+		bsf bit_buffer_h,3
 		movlw b'00110100'
 		movwf bit_buffer_l
 		bcf INTCON,INT1IF
@@ -132,6 +139,8 @@ send_rb_1:					; send forward command
 send_rb_2:					; send pause command
 		movlw b'00110101'
 		movwf bit_buffer_h
+		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		bsf bit_buffer_h,3
 		movlw b'00110000'
 		movwf bit_buffer_l
 		bcf INTCON,INT2IF
@@ -140,6 +149,8 @@ send_rb_2:					; send pause command
 send_rb_4:					; send play command
 		movlw b'00110101'
 		movwf bit_buffer_h
+		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		bsf bit_buffer_h,3
 		movlw b'00110101'
 		movwf bit_buffer_l
 		return
@@ -147,6 +158,8 @@ send_rb_4:					; send play command
 send_rb_5:					; send backward command
 		movlw b'00110101'
 		movwf bit_buffer_h
+		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		bsf bit_buffer_h,3
 		movlw b'00110010'
 		movwf bit_buffer_l
 		return
@@ -268,7 +281,7 @@ init_i_o:
 ; Helper sender routines
 tmr_delay:
 		;start timer 0 for pausing
-		movlw 0xFF
+		movlw 0xFF ; 0xF7
 		movwf TMR0H
 		movlw 0x52
 		movwf TMR0L
@@ -278,7 +291,7 @@ tmr_delay:
 
 pwm_delay:
 		;load timer 0 for half bit
-		movlw 0xFF
+		movlw 0xFF ; 0xF7
 		movwf TMR0H
 		movlw 0x52
 		movwf TMR0L
@@ -351,6 +364,8 @@ Main:
 		; temp: send command 256 times
 		movlw 0xFF
 		movwf command_ctr
+		movlw 0x00
+		movwf bit_buffer_toggle
 
 		bcf OSCCON,IDLEN
 go_to_sleep
