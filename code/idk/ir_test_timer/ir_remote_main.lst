@@ -1,0 +1,1406 @@
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;******************************************************************************
+                      00002 ;   This file is a basic template for assembly code for a PIC18F4525. Copy    *
+                      00003 ;   this file into your project directory and modify or add to it as needed.  *
+                      00004 ;                                                                             *
+                      00005 ;   Refer to the MPASM User's Guide for additional information on the         *
+                      00006 ;   features of the assembler.                                                *
+                      00007 ;                                                                             *
+                      00008 ;   Refer to the PIC18FX525/X620 Data Sheet for additional                    *
+                      00009 ;   information on the architecture and instruction set.                      *
+                      00010 ;                                                                             *
+                      00011 ;******************************************************************************
+                      00012 ;                                                                             *
+                      00013 ;    Filename:                                                                *
+                      00014 ;    Date:                                                                    *
+                      00015 ;    File Version:                                                            *
+                      00016 ;                                                                             *
+                      00017 ;    Author:                                                                  *
+                      00018 ;    Company:                                                                 *
+                      00019 ;                                                                             * 
+                      00020 ;******************************************************************************
+                      00021 ;                                                                             *
+                      00022 ;    Files Required: P18F4525.INC                                             *
+                      00023 ;                                                                             *
+                      00024 ;******************************************************************************
+                      00025 
+                      00026         LIST P=18F4525  ;directive to define processor
+                      00027         #include "P18F4525.INC" ;processor specific variable definitions
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ;  MPASM PIC18F4525 processor include
+                      00005 ; 
+                      00006 ;  (c) Copyright 1999-2013 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      01437         LIST
+                      00028 
+                      00029 ;******************************************************************************
+                      00030 ;Configuration bits
+                      00031 ;Microchip has changed the format for defining the configuration bits, please 
+                      00032 ;see the .inc file for futher details on notation.  Below are a few examples.
+                      00033 
+                      00034 
+                      00035 
+                      00036 ;   Oscillator Selection:
+02 1F 1F 83 85 0F C0 000037     CONFIG      OSC = HS             ;LP
+       F E0 0F 40 
+                      00038 
+                      00039 ;******************************************************************************
+                      00040 ;Variable definitions
+                      00041 ; These variables are only needed if low priority interrupts are used. 
+                      00042 ; More variables may be needed to store other special function registers used
+                      00043 ; in the interrupt routines.
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00044 
+Warning[207]: Found label after column 1. (bit_buffer_h)
+  00000000            00045                 bit_buffer_h equ 0x00
+Warning[207]: Found label after column 1. (bit_buffer_l)
+  00000001            00046                 bit_buffer_l equ 0x01
+Warning[207]: Found label after column 1. (bit_buffer_toggle)
+  00000002            00047                 bit_buffer_toggle equ 0x02
+                      00048 
+Warning[207]: Found label after column 1. (bit_send)
+  00000003            00049                 bit_send equ 0x03
+                      00050                 
+Warning[207]: Found label after column 1. (bit_ctr)
+  00000010            00051                 bit_ctr equ 0x10
+                      00052 
+Warning[207]: Found label after column 1. (command_ctr)
+  00000011            00053                 command_ctr equ 0x11
+                      00054 
+Warning[207]: Found label after column 1. (tmr_done)
+  00000012            00055                 tmr_done equ 0x12
+                      00056                 
+                      00057 
+                      00058 ;******************************************************************************
+                      00059 ;EEPROM data
+                      00060 ; Data to be programmed into the Data EEPROM is defined here
+                      00061 
+F00000                00062                 ORG     0xf00000
+                      00063 
+F00000 6554 7473 4420 00064                 DE      "Test Data",0,1,2,3,4,5
+       7461 0061 0201 
+       0403 0005 
+                      00065 
+                      00066 ;******************************************************************************
+                      00067 ;Reset vector
+                      00068 ; This code will start executing when a reset occurs.
+                      00069 
+000000                00070                 ORG     0x0000
+                      00071 
+000000 EFBC F000      00072                 goto    Main            ;go to start of main code
+                      00073 
+                      00074 ;******************************************************************************
+                      00075 ;High priority interrupt vector
+                      00076 ; This code will start executing when a high priority interrupt occurs or
+                      00077 ; when any interrupt occurs if interrupt priorities are not enabled.
+                      00078 
+000008                00079                 ORG     0x0008
+                      00080 
+000008 D008           00081                 bra     HighInt         ;go to high priority interrupt routine
+                      00082 
+                      00083 ;******************************************************************************
+                      00084 ;Low priority interrupt vector and routine
+                      00085 ; This code will start executing when a low priority interrupt occurs.
+                      00086 ; This code can be removed if low priority interrupts are not used.
+                      00087 
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000018                00088                 ORG 0x0018
+                      00089                 
+000018 D03E           00090                 bra LowInt
+                      00091 
+                      00092 ;******************************************************************************
+                      00093 ;High priority interrupt routine
+                      00094 ; The high priority interrupt code is placed here to avoid conflicting with
+                      00095 ; the low priority interrupt vector.
+                      00096 
+00001A                00097 HighInt:
+                      00098 
+                      00099                 
+                      00100 
+                      00101                 ; temporary
+00001A 0EFF           00102                 movlw 0xFF
+00001C 6E03           00103                 movwf bit_send
+                      00104                 ; toggle bit
+00001E 7002           00105                 btg bit_buffer_toggle,0
+                      00106                 ; test interrupt flags to identify pressed button
+000020 B0F2           00107                 btfsc INTCON,RBIF       ; pin 4/5 pressed
+000022 EC1D F000      00108                 call send_rb_on_change
+000026 B2F2           00109                 btfsc INTCON,INT0IF     ; pin 0 pressed
+000028 EC25 F000      00110                 call send_rb_0
+00002C B0F2           00111                 btfsc INTCON,INT1IF     ; pin 1 pressed
+00002E EC2D F000      00112                 call send_rb_1
+000032 B2F2           00113                 btfsc INTCON,INT2IF     ; pin 2 pressed
+000034 EC35 F000      00114                 call send_rb_2
+                      00115 
+000038 0011           00116                 retfie  FAST
+                      00117 
+00003A                00118 send_rb_on_change:
+                      00119                 ; check if pin 4 or 5 was pressed
+00003A A881           00120                 btfss PORTB,4
+00003C EC3D F000      00121                 call send_rb_4
+000040 AA81           00122                 btfss PORTB,5
+000042 EC44 F000      00123                 call send_rb_5
+000046 90F2           00124                 bcf INTCON,RBIF
+000048 0012           00125                 return
+                      00126 
+00004A                00127 send_rb_0:                                      ; send stop command
+00004A 0E35           00128                 movlw b'00110101'
+00004C 6E00           00129                 movwf bit_buffer_h
+00004E B002           00130                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000050 8600           00131                 bsf bit_buffer_h,3
+000052 0E36           00132                 movlw b'00110110'
+000054 6E01           00133                 movwf bit_buffer_l
+000056 92F2           00134                 bcf INTCON,INT0IF
+000058 0012           00135                 return
+                      00136 
+00005A                00137 send_rb_1:                                      ; send forward command
+00005A 0E35           00138                 movlw b'00110101'
+00005C 6E00           00139                 movwf bit_buffer_h
+00005E B002           00140                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000060 8600           00141                 bsf bit_buffer_h,3
+000062 0E34           00142                 movlw b'00110100'
+000064 6E01           00143                 movwf bit_buffer_l
+000066 90F2           00144                 bcf INTCON,INT1IF
+000068 0012           00145                 return
+                      00146 
+00006A                00147 send_rb_2:                                      ; send pause command
+00006A 0E35           00148                 movlw b'00110101'
+00006C 6E00           00149                 movwf bit_buffer_h
+00006E B002           00150                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000070 8600           00151                 bsf bit_buffer_h,3
+000072 0E30           00152                 movlw b'00110000'
+000074 6E01           00153                 movwf bit_buffer_l
+000076 92F2           00154                 bcf INTCON,INT2IF
+000078 0012           00155                 return
+                      00156 
+00007A                00157 send_rb_4:                                      ; send play command
+00007A 0E35           00158                 movlw b'00110101'
+00007C 6E00           00159                 movwf bit_buffer_h
+00007E B002           00160                 btfsc bit_buffer_toggle,0; set toggle bit in bit buffer
+000080 8600           00161                 bsf bit_buffer_h,3
+000082 0E35           00162                 movlw b'00110101'
+000084 6E01           00163                 movwf bit_buffer_l
+000086 0012           00164                 return
+                      00165 
+000088                00166 send_rb_5:                                      ; send backward command
+000088 0E35           00167                 movlw b'00110101'
+00008A 6E00           00168                 movwf bit_buffer_h
+00008C B002           00169                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+00008E 8600           00170                 bsf bit_buffer_h,3
+000090 0E32           00171                 movlw b'00110010'
+000092 6E01           00172                 movwf bit_buffer_l
+000094 0012           00173                 return
+                      00174 
+                      00175 ;******************************************************************************
+                      00176 ;Low priority interrupt routine
+                      00177 
+000096                00178 LowInt:
+                      00179                 
+                      00180                 ; stop timers
+000096 9ED5           00181                 bcf T0CON,TMR0ON
+000098 94CA           00182                 bcf T2CON,TMR2ON
+                      00183                 
+00009A 94F2           00184                 bcf INTCON,TMR0IF
+                      00185 
+                      00186                 ; stop flag for delay loop
+00009C 8012           00187                 bsf tmr_done,0
+                      00188 
+00009E 0010           00189                 retfie
+                      00190 
+                      00191 
+                      00192 ;******************************************************************************
+                      00193 ;Interrupt configuration routines
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000A0                00194 init_portb:
+                      00195                 ; Routine für INT0- INT2 
+                      00196                 ;clrf   PORTB
+                      00197                 ;setf   PORTB
+                      00198      
+0000A0 90C2           00199                 bcf    ADCON0,ADON ; AD Converter disabled 
+                      00200       
+0000A2 0EFF           00201                 movlw   0xFF
+0000A4 6E93           00202                 movwf   TRISB  
+                      00203 
+0000A6 0EFF           00204                 movlw    0xFF
+0000A8 6EC1           00205                 movwf    ADCON1
+                      00206 
+0000AA 0E3B           00207                 movlw   b'00111011'
+0000AC 6E81           00208                 movwf   PORTB
+                      00209 ; Clear Interrupt flags 
+0000AE 010F           00210                 banksel INTCON
+0000B0 92F2           00211         bcf     INTCON,INT0IF
+0000B2 90F0           00212                 bcf             INTCON3,INT1IF
+0000B4 92F0           00213                 bcf             INTCON3,INT2IF
+0000B6 90F2           00214         bcf             INTCON,RBIF
+                      00215     
+0000B8 9EF1           00216         bcf     INTCON2,RBPU
+                      00217 
+                      00218 ; Enable Interrupts       
+0000BA 88F2           00219         bsf     INTCON,INT0IE
+0000BC 86F0           00220                 bsf             INTCON3,INT1IE
+0000BE 88F0           00221                 bsf             INTCON3,INT2IE
+0000C0 86F2           00222         bsf             INTCON,RBIE
+                      00223 
+                      00224 ; Set edges in this case on falling edge 
+0000C2 9CF1           00225         bcf     INTCON2,INTEDG0
+0000C4 9AF1           00226         bcf             INTCON2,INTEDG1
+0000C6 98F1           00227                 bcf             INTCON2,INTEDG2
+                      00228 
+                      00229 ; Interrupt priority of int1 / 2 needs to be configured 
+                      00230 
+0000C8 8EF2           00231         bsf     INTCON,GIEH  
+0000CA 8CF2           00232                 bsf     INTCON,GIEL 
+                      00233       
+0000CC 8ED0           00234                 bsf     RCON,IPEN ; Enables Priorities 
+                      00235 
+                      00236 ; Setting Priority high for INT1, INT2 
+0000CE 8EF0           00237                 bsf             INTCON3,INT2IP
+0000D0 8CF0           00238                 bsf             INTCON3,INT1IP
+0000D2 80F1           00239         bsf             INTCON2,RBIP ; Low Priority for interrupt on change
+                      00240 
+                      00241                 
+                      00242                 ;
+0000D4 0EF8           00243                 movlw b'11111000'
+0000D6 6EF2           00244                 movwf INTCON
+                      00245                 ;
+                      00246 
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000D8 0012           00247                 return
+                      00248 
+                      00249 ;******************************************************************************
+                      00250 ; Output configuration routines
+                      00251 
+0000DA                00252 init_portc:
+                      00253                 ; configure port c
+0000DA 6A82           00254                 clrf PORTC
+0000DC 6A8B           00255                 clrf LATC
+0000DE 6A94           00256                 clrf TRISC
+0000E0 0012           00257                 return
+                      00258 
+0000E2                00259 init_tmr:
+                      00260                 ; configure pwm module
+0000E2 010F           00261                 banksel PR2
+0000E4 0E44           00262                 movlw 0x44                      ; configure period time with 0x44
+0000E6 6ECB           00263                 movwf PR2
+                      00264 
+0000E8 0E05           00265                 movlw b'00000101' ;b'00000100'  ; configure duty cycle with 0x11
+0000EA 6EBB           00266                 movwf CCPR2L
+0000EC 0E2C           00267                 movlw b'00101100' ;b'00011100'  ; configure pwm mode and 2 lsbs of duty cycle
+0000EE 6EBA           00268                 movwf CCP2CON
+                      00269 
+0000F0 0E00           00270                 movlw b'00000000'
+0000F2 6ECA           00271                 movwf T2CON
+                      00272 
+                      00273                 ; configure timer 0 for delay
+                      00274                 ;movlw b'00001000'
+                      00275                 ;movwf T0CON
+                      00276                 
+                      00277                 ; test timer 1
+0000F4 0E80           00278                 movlw b'10000000'
+0000F6 6ECD           00279                 movwf T1CON     
+                      00280 
+                      00281 
+0000F8 94F2           00282                 bcf INTCON,TMR0IF ;interrupt flag
+0000FA 8AF2           00283                 bsf INTCON,TMR0IE ;interrupt enable
+0000FC 94F1           00284                 bcf INTCON2,TMR0IP ;low priority interrupt
+0000FE 8EF2           00285                 bsf INTCON,GIE ;general interrupt enable
+                      00286 
+                      00287                 ;movlw 0x00
+                      00288                 ;movwf tmr_done         
+                      00289 
+000100 0012           00290                 return
+                      00291 
+000102                00292 init_i_o:
+                      00293                 ; configure all remaining ports as inputs for sleep mode
+000102 6A80           00294                 clrf    PORTA
+000104 0EFF           00295                 movlw   0xFF
+000106 6E92           00296                 movwf   TRISA
+000108 6A83           00297                 clrf    PORTD
+00010A 0EFF           00298                 movlw   0xFF
+00010C 6E95           00299                 movwf   TRISD
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00010E 0012           00300                 return
+                      00301 
+                      00302 
+                      00303 ;******************************************************************************
+                      00304 ; Helper sender routines
+000110                00305 tmr_delay:
+                      00306                 ;start timer 0 for pausing
+000110 0EFF           00307                 movlw 0xFF ;0xF7
+000112 6ECF           00308                 movwf TMR1H
+000114 0E7F           00309                 movlw 0x7F ; 0x52
+000116 6ECE           00310                 movwf TMR1L
+000118 80CD           00311                 bsf T1CON,TMR1ON
+00011A 828B           00312                 bsf LATC,1
+00011C EC9F F000      00313                 call delay_loop
+000120 928B           00314                 bcf LATC,1
+000122 0012           00315                 return
+                      00316 
+000124                00317 pwm_delay:
+                      00318                 ;load timer 0 for half bit
+000124 010F           00319                 banksel TMR1H
+000126 0EFF           00320                 movlw 0xFF ; 0xF7
+000128 6ECF           00321                 movwf TMR1H,A
+00012A 0E7F           00322                 movlw 0x7F ; 0x52
+00012C 6ECE           00323                 movwf TMR1L,A
+                      00324                 ;load timer 2 for pwm
+00012E 0E00           00325                 movlw 0x00
+000130 6ECC           00326                 movwf TMR2
+000132 828B           00327                 bsf LATC,1 ;set first pulse manually
+                      00328 
+000134 80CD           00329                 bsf T1CON,TMR1ON
+000136 84CA           00330                 bsf T2CON,TMR2ON
+                      00331 
+000138 EC9F F000      00332                 call delay_loop
+                      00333 
+00013C 0012           00334                 return
+                      00335 
+                      00336 ;wait for interrupt to end half bit
+00013E                00337 delay_loop:
+00013E A012           00338                 btfss tmr_done,0
+000140 D7FE           00339                 bra delay_loop
+000142 9012           00340                 bcf tmr_done,0
+000144 0012           00341                 return
+                      00342                 
+                      00343 
+000146                00344 send_0:
+000146 EC88 F000      00345                 call tmr_delay
+                      00346                 ;call pwm_delay
+00014A 0012           00347                 return
+                      00348 
+00014C                00349 send_1:
+                      00350                 ;call pwm_delay
+00014C EC88 F000      00351                 call tmr_delay
+000150 0012           00352                 return
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00353 
+                      00354 ;******************************************************************************
+                      00355 ; Main sender routine
+                      00356 
+000152                00357 send_command:
+                      00358                 ;skip first two bits
+000152 3601           00359                 rlcf bit_buffer_l
+000154 3600           00360                 rlcf bit_buffer_h
+000156 3601           00361                 rlcf bit_buffer_l
+000158 3600           00362                 rlcf bit_buffer_h
+                      00363                 ;init bit counter
+00015A 0E0E           00364                 movlw d'14'
+00015C 6E10           00365                 movwf bit_ctr
+00015E ECB2 F000      00366                 call send_bit
+000162 0012           00367                 return
+                      00368 
+000164                00369 send_bit:
+000164 3601           00370                 rlcf bit_buffer_l
+000166 3600           00371                 rlcf bit_buffer_h
+000168 A0D8           00372                 btfss STATUS,C
+00016A ECA3 F000      00373                 call send_0
+00016E ECA6 F000      00374                 call send_1
+000172 2E10           00375                 decfsz bit_ctr
+000174 D7F7           00376                 bra send_bit
+000176 0012           00377                 return
+                      00378 
+                      00379 
+                      00380 ;******************************************************************************
+                      00381 ;Start of main program
+                      00382 ; The main program code is placed here.
+                      00383 
+000178                00384 Main:
+                      00385                 ;call init_portb
+                      00386                 ;call init_portc
+                      00387                 ;call init_tmr
+                      00388                 ;call init_i_o
+                      00389 
+000178 6A82           00390                 clrf PORTC
+00017A 6A8B           00391                 clrf LATC
+00017C 0E00           00392                 movlw 0x00
+00017E 6E94           00393                 movwf TRISC
+                      00394 
+000180 0E08           00395                 movlw b'00001000'
+000182 6ED5           00396                 movwf T0CON
+                      00397 
+000184 94F2           00398                 bcf INTCON,TMR0IF ;interrupt flag
+000186 8AF2           00399                 bsf INTCON,TMR0IE ;interrupt enable
+000188 94F1           00400                 bcf INTCON2,TMR0IP ;low priority interrupt
+00018A 8EF2           00401                 bsf INTCON,GIE ;general interrupt enable
+                      00402 
+00018C                00403 cycle
+                      00404 
+00018C 828B           00405                 bsf LATC,1
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00406 
+00018E 0EFF           00407                 movlw 0xFF ; 0xF7
+000190 6ED7           00408                 movwf TMR0H
+000192 0E7F           00409                 movlw 0x7F ; 0x52
+000194 6ED6           00410                 movwf TMR0L
+                      00411 
+000196 8ED5           00412                 bsf T0CON,TMR0ON
+000198                00413 delay_high
+000198 A012           00414                 btfss tmr_done,0
+00019A D7FE           00415                 bra delay_high
+00019C 9012           00416                 bcf tmr_done,0
+                      00417                 
+00019E 9ED5           00418                 bcf T0CON,TMR0ON
+                      00419 
+0001A0 928B           00420                 bcf LATC,1
+                      00421                 
+0001A2 0EFF           00422                 movlw 0xFF ; 0xF7
+0001A4 6ED7           00423                 movwf TMR0H
+0001A6 0E7F           00424                 movlw 0x7F ; 0x52
+0001A8 6ED6           00425                 movwf TMR0L
+                      00426 
+0001AA 8ED5           00427                 bsf T0CON,TMR0ON
+                      00428 
+0001AC                00429 delay_low
+0001AC A012           00430                 btfss tmr_done,0
+0001AE D7FE           00431                 bra delay_low
+0001B0 9012           00432                 bcf tmr_done,0
+                      00433                 
+0001B2 9ED5           00434                 bcf T0CON,TMR0ON
+                      00435 
+0001B4 D7EB           00436                 bra cycle
+                      00437 
+                      00438 
+                      00439 ;******************************************************************************
+                      00440 ;End of program
+0001B6 EFDB F000      00441         goto $
+                      00442                 END
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN10                              00000001
+AN11                              00000004
+AN12                              00000000
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+AN8                               00000002
+AN9                               00000003
+BANKED                            00000001
+BAUDCON                           00000FB8
+BAUDCTL                           00000FB8
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BSR                               00000FE0
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1                              00000002
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1X                             00000005
+CCP1Y                             00000004
+CCP2CON                           00000FBA
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2X                             00000005
+CCP2Y                             00000004
+CCP2_PORTB                        00000003
+CCP2_PORTC                        00000001
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000FBB
+CCPR2H                            00000FBC
+CCPR2L                            00000FBB
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CIS                               00000003
+CK                                00000006
+CKE                               00000006
+CKP                               00000004
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             00000FB4
+CMIE                              00000006
+CMIF                              00000006
+CMIP                              00000006
+CREN                              00000004
+CS                                00000002
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            00000FB5
+CVREN                             00000007
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CVROE                             00000006
+CVRR                              00000005
+CVRSS                             00000004
+D                                 00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DONE                              00000001
+D_A                               00000005
+D_NOT_A                           00000005
+ECCP1AS                           00000FB6
+ECCPAS                            00000FB6
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             00000FA9
+EEADRH                            00000FAA
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+FAST                              00000001
+FERR                              00000002
+FLTS                              00000002
+FREE                              00000004
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GIE_GIEH                          00000007
+GO                                00000001
+GO_DONE                           00000001
+GO_NOT_DONE                       00000001
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+HLVDCON                           00000FD2
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+HighInt                           0000001A
+IBF                               00000007
+IBOV                              00000005
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRVST                             00000005
+IVRST                             00000005
+KBI0                              00000004
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+KBI1                              00000005
+KBI2                              00000006
+KBI3                              00000007
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATA7                             00000007
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC3                             00000003
+LATC4                             00000004
+LATC5                             00000005
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+LowInt                            00000096
+MCLR                              00000003
+Main                              00000178
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_CS                            00000002
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RD                            00000000
+NOT_RI                            00000004
+NOT_SS                            00000005
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WR                            00000001
+NOT_WRITE                         00000002
+OBF                               00000006
+OERR                              00000001
+OSCCON                            00000FD3
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1B                               00000005
+P1C                               00000006
+P1D                               00000007
+P1M0                              00000006
+P1M1                              00000007
+PC                                00000FF9
+PCFG0                             00000000
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEIE_GIEL                         00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PGM                               00000005
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIR1                              00000F9E
+PIR2                              00000FA1
+PLLEN                             00000006
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSP0                              00000000
+PSP1                              00000001
+PSP2                              00000002
+PSP3                              00000003
+PSP4                              00000004
+PSP5                              00000005
+PSP6                              00000006
+PSP7                              00000007
+PSPIE                             00000007
+PSPIF                             00000007
+PSPIP                             00000007
+PSPMODE                           00000004
+PSSAC0                            00000002
+PSSAC1                            00000003
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PSSBD0                            00000000
+PSSBD1                            00000001
+PWM1CON                           00000FB7
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RA7                               00000007
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCMT                              00000006
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000007
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RE2                               00000002
+RE3                               00000003
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+RXCKP                             00000005
+RXDTP                             00000005
+R_NOT_W                           00000002
+R_W                               00000002
+S                                 00000003
+SBOREN                            00000006
+SCK                               00000003
+SCKP                              00000004
+SCL                               00000003
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000004
+SDI                               00000004
+SDO                               00000005
+SEN                               00000000
+SENDB                             00000003
+SMP                               00000007
+SP0                               00000000
+SP1                               00000001
+SP2                               00000002
+SP3                               00000003
+SP4                               00000004
+SPBRG                             00000FAF
+SPBRGH                            00000FB0
+SPEN                              00000007
+SREN                              00000005
+SS                                00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+T016BIT                           00000006
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T13CKI                            00000000
+T1CKI                             00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RUN                             00000006
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TMR0                              00000FD6
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR0ON                            00000007
+TMR1                              00000FCE
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3                              00000FB2
+TMR3CS                            00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISA7                            00000007
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX                                00000006
+TX9                               00000006
+TX9D                              00000000
+TXCKP                             00000004
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXSTA                             00000FAC
+UA                                00000001
+VCFG0                             00000004
+VCFG1                             00000005
+VDIRMAG                           00000007
+VPP                               00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+_BOREN_NOSLP_2L                   000000FD
+_BOREN_OFF_2L                     000000F9
+_BOREN_ON_2L                      000000FB
+_BOREN_SBORDIS_2L                 000000FF
+_BORV_0_2L                        000000E7
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 22
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_BORV_1_2L                        000000EF
+_BORV_2_2L                        000000F7
+_BORV_3_2L                        000000FF
+_CCP2MX_PORTBE_3H                 000000FE
+_CCP2MX_PORTC_3H                  000000FF
+_CONFIG1H                         00300001
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LPT1OSC_OFF_3H                   000000FB
+_LPT1OSC_ON_3H                    000000FF
+_LVP_OFF_4L                       000000FB
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_LVP_ON_4L                        000000FF
+_MCLRE_OFF_3H                     0000007F
+_MCLRE_ON_3H                      000000FF
+_OSC_ECIO6_1H                     000000F5
+_OSC_EC_1H                        000000F4
+_OSC_HSPLL_1H                     000000F6
+_OSC_HS_1H                        000000F2
+_OSC_INTIO67_1H                   000000F8
+_OSC_INTIO7_1H                    000000F9
+_OSC_LP_1H                        000000F0
+_OSC_RCIO6_1H                     000000F7
+_OSC_RC_1H                        000000F3
+_OSC_XT_1H                        000000F1
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_WDTPS_1024_2H                    000000F5
+_WDTPS_128_2H                     000000EF
+_WDTPS_16384_2H                   000000FD
+_WDTPS_16_2H                      000000E9
+_WDTPS_1_2H                       000000E1
+_WDTPS_2048_2H                    000000F7
+_WDTPS_256_2H                     000000F1
+_WDTPS_2_2H                       000000E3
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000EB
+_WDTPS_4096_2H                    000000F9
+_WDTPS_4_2H                       000000E5
+_WDTPS_512_2H                     000000F3
+_WDTPS_64_2H                      000000ED
+_WDTPS_8192_2H                    000000FB
+_WDTPS_8_2H                       000000E7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F4525                         00000001
+__DEBUG                           1
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 24
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+__MPLAB_DEBUGGER_ICD3             1
+bit_buffer_h                      00000000
+bit_buffer_l                      00000001
+bit_buffer_toggle                 00000002
+bit_ctr                           00000010
+bit_send                          00000003
+command_ctr                       00000011
+cycle                             0000018C
+delay_high                        00000198
+delay_loop                        0000013E
+delay_low                         000001AC
+init_i_o                          00000102
+init_portb                        000000A0
+init_portc                        000000DA
+init_tmr                          000000E2
+pwm_delay                         00000124
+send_0                            00000146
+send_1                            0000014C
+send_bit                          00000164
+send_command                      00000152
+send_rb_0                         0000004A
+send_rb_1                         0000005A
+send_rb_2                         0000006A
+send_rb_4                         0000007A
+send_rb_5                         00000088
+send_rb_on_change                 0000003A
+tmr_delay                         00000110
+tmr_done                          00000012
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXX----XX------ --------XXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXX------
+0000 : -XXX-XX-XXXXXX-- ---------------- ---------------- ----------------
+0000 : XXXXXXXXXXXXXXXX ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Bytes Used:   451
+Program Memory Bytes Free: 48701
+
+
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  14:33:53         PAGE 25
+
+
+
+
+
+Errors   :     0
+Warnings :     7 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+

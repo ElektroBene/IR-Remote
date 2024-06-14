@@ -1,0 +1,96 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Fri Jun 14 14:33:54 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_2       code   0x000000    program   0x000004
+                   .org_3       code   0x000008    program   0x000002
+                   .org_4       code   0x000018    program   0x0001a2
+.config_300001_IR_REMOTE_MAIN.O    romdata   0x300001    program   0x000001
+.config_300002_IR_REMOTE_MAIN.O    romdata   0x300002    program   0x000001
+.config_300003_IR_REMOTE_MAIN.O    romdata   0x300003    program   0x000001
+.config_300005_IR_REMOTE_MAIN.O    romdata   0x300005    program   0x000001
+.config_300006_IR_REMOTE_MAIN.O    romdata   0x300006    program   0x000001
+.config_300008_IR_REMOTE_MAIN.O    romdata   0x300008    program   0x000001
+.config_300009_IR_REMOTE_MAIN.O    romdata   0x300009    program   0x000001
+.config_30000A_IR_REMOTE_MAIN.O    romdata   0x30000a    program   0x000001
+.config_30000B_IR_REMOTE_MAIN.O    romdata   0x30000b    program   0x000001
+.config_30000C_IR_REMOTE_MAIN.O    romdata   0x30000c    program   0x000001
+.config_30000D_IR_REMOTE_MAIN.O    romdata   0x30000d    program   0x000001
+                   .org_1       code   0xf00000    program   0x000010
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x000009      
+                            0x000018    0x0001b9      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+                            0xf00000    0xf0000f      
+            451 out of 50200 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   LowInt   0x000096    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                     Main   0x000178    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                    cycle   0x00018c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               delay_high   0x000198    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               delay_loop   0x00013e    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                delay_low   0x0001ac    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 init_i_o   0x000102    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               init_portb   0x0000a0    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               init_portc   0x0000da    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 init_tmr   0x0000e2    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                pwm_delay   0x000124    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   send_0   0x000146    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   send_1   0x00014c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 send_bit   0x000164    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+             send_command   0x000152    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_0   0x00004a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_1   0x00005a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_2   0x00006a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_4   0x00007a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_5   0x000088    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+        send_rb_on_change   0x00003a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                tmr_delay   0x000110    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+        send_rb_on_change   0x00003a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_0   0x00004a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_1   0x00005a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_2   0x00006a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_4   0x00007a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                send_rb_5   0x000088    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   LowInt   0x000096    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               init_portb   0x0000a0    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               init_portc   0x0000da    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 init_tmr   0x0000e2    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 init_i_o   0x000102    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                tmr_delay   0x000110    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                pwm_delay   0x000124    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               delay_loop   0x00013e    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   send_0   0x000146    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                   send_1   0x00014c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+             send_command   0x000152    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                 send_bit   0x000164    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                     Main   0x000178    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                    cycle   0x00018c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+               delay_high   0x000198    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+                delay_low   0x0001ac    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_test_timer\ir_remote_main.ASM
+
+
