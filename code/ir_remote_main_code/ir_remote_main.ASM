@@ -45,6 +45,7 @@
 		bit_buffer_h equ 0x00
 		bit_buffer_l equ 0x01
 		bit_buffer_toggle equ 0x02
+		running equ 0x03
 		
 		bit_ctr equ 0x10
 
@@ -93,6 +94,34 @@
 ; the low priority interrupt vector.
 
 HighInt:
+
+		; switch from falling edge to rising edge
+		btg INTCON2,INTEDG0
+    	btg	INTCON2,INTEDG1
+		btg	INTCON2,INTEDG2
+		
+		btfss INTCON2,INTEDG0
+		call send
+		btfsc INTCON2,INTEDG0
+		call stop
+		
+		
+		retfie FAST
+
+stop:
+		; deactivate sending
+		bcf running,0
+		
+;		bsf INTCON,RBIF
+;		bsf INTCON,INT0IF
+;		bsf INTCON,INT1IF
+;		bsf INTCON,INT2IF
+		
+		return
+		
+send:
+		; activate sending
+		bsf running,0
 		; toggle bit
 		btg bit_buffer_toggle,0
 		; test interrupt flags to identify pressed button
@@ -105,7 +134,7 @@ HighInt:
 		btfsc INTCON,INT2IF	; pin 2 pressed
 		call send_rb_2
 
-		retfie	FAST
+		return
 
 send_rb_on_change:
 		; check if pin 4 or 5 was pressed
@@ -119,7 +148,7 @@ send_rb_on_change:
 send_rb_0:					; send stop command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
 		bsf bit_buffer_h,3
 		movlw b'00110110'
 		movwf bit_buffer_l
@@ -139,7 +168,7 @@ send_rb_1:					; send forward command
 send_rb_2:					; send pause command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
 		bsf bit_buffer_h,3
 		movlw b'00110000'
 		movwf bit_buffer_l
@@ -149,7 +178,7 @@ send_rb_2:					; send pause command
 send_rb_4:					; send play command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
 		bsf bit_buffer_h,3
 		movlw b'00110101'
 		movwf bit_buffer_l
@@ -158,7 +187,7 @@ send_rb_4:					; send play command
 send_rb_5:					; send backward command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
+		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
 		bsf bit_buffer_h,3
 		movlw b'00110010'
 		movwf bit_buffer_l
@@ -366,14 +395,22 @@ Main:
 		movwf command_ctr
 		movlw 0x00
 		movwf bit_buffer_toggle
+		movlw 0x00
+		movwf running
 
+		; initial sleep
 		bcf OSCCON,IDLEN
-go_to_sleep
 		sleep
 		nop
+		
+		; wakeup
+check_running:
+		btfsc running,0
 		call send_command
-		decfsz command_ctr
-		bra go_to_sleep
+		btfss running,0
+		sleep
+		nop
+		bra check_running
 
 
 

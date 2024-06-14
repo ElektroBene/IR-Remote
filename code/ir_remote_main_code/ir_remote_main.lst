@@ -1,4 +1,4 @@
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  1
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00041 ; These variables are only needed if low priority interrupts are used. 
                       00042 ; More variables may be needed to store other special function registers used
                       00043 ; in the interrupt routines.
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  2
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -68,371 +68,431 @@ Warning[207]: Found label after column 1. (bit_buffer_h)
   00000000            00045                 bit_buffer_h equ 0x00
 Warning[207]: Found label after column 1. (bit_buffer_l)
   00000001            00046                 bit_buffer_l equ 0x01
-                      00047                 
+Warning[207]: Found label after column 1. (bit_buffer_toggle)
+  00000002            00047                 bit_buffer_toggle equ 0x02
+Warning[207]: Found label after column 1. (running)
+  00000003            00048                 running equ 0x03
+                      00049                 
 Warning[207]: Found label after column 1. (bit_ctr)
-  00000002            00048                 bit_ctr equ 0x02
-                      00049 
-Warning[207]: Found label after column 1. (command_ctr)
-  00000003            00050                 command_ctr equ 0x03
+  00000010            00050                 bit_ctr equ 0x10
                       00051 
+Warning[207]: Found label after column 1. (command_ctr)
+  00000011            00052                 command_ctr equ 0x11
+                      00053 
 Warning[207]: Found label after column 1. (tmr_done)
-  00000004            00052                 tmr_done equ 0x04
-                      00053                 
-                      00054 
-                      00055 ;******************************************************************************
-                      00056 ;EEPROM data
-                      00057 ; Data to be programmed into the Data EEPROM is defined here
-                      00058 
-F00000                00059                 ORG     0xf00000
+  00000012            00054                 tmr_done equ 0x12
+                      00055                 
+                      00056 
+                      00057 ;******************************************************************************
+                      00058 ;EEPROM data
+                      00059 ; Data to be programmed into the Data EEPROM is defined here
                       00060 
-F00000 6554 7473 4420 00061                 DE      "Test Data",0,1,2,3,4,5
+F00000                00061                 ORG     0xf00000
+                      00062 
+F00000 6554 7473 4420 00063                 DE      "Test Data",0,1,2,3,4,5
        7461 0061 0201 
        0403 0005 
-                      00062 
-                      00063 ;******************************************************************************
-                      00064 ;Reset vector
-                      00065 ; This code will start executing when a reset occurs.
-                      00066 
-000000                00067                 ORG     0x0000
+                      00064 
+                      00065 ;******************************************************************************
+                      00066 ;Reset vector
+                      00067 ; This code will start executing when a reset occurs.
                       00068 
-000000 EFAC F000      00069                 goto    Main            ;go to start of main code
+000000                00069                 ORG     0x0000
                       00070 
-                      00071 ;******************************************************************************
-                      00072 ;High priority interrupt vector
-                      00073 ; This code will start executing when a high priority interrupt occurs or
-                      00074 ; when any interrupt occurs if interrupt priorities are not enabled.
-                      00075 
-000008                00076                 ORG     0x0008
+000000 EFC4 F000      00071                 goto    Main            ;go to start of main code
+                      00072 
+                      00073 ;******************************************************************************
+                      00074 ;High priority interrupt vector
+                      00075 ; This code will start executing when a high priority interrupt occurs or
+                      00076 ; when any interrupt occurs if interrupt priorities are not enabled.
                       00077 
-000008 D008           00078                 bra     HighInt         ;go to high priority interrupt routine
+000008                00078                 ORG     0x0008
                       00079 
-                      00080 ;******************************************************************************
-                      00081 ;Low priority interrupt vector and routine
-                      00082 ; This code will start executing when a low priority interrupt occurs.
-                      00083 ; This code can be removed if low priority interrupts are not used.
-                      00084 
-000018                00085                 ORG 0x0018
-                      00086                 
-000018 D031           00087                 bra LowInt
-                      00088 
-                      00089 ;******************************************************************************
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  3
+000008 D008           00080                 bra     HighInt         ;go to high priority interrupt routine
+                      00081 
+                      00082 ;******************************************************************************
+                      00083 ;Low priority interrupt vector and routine
+                      00084 ; This code will start executing when a low priority interrupt occurs.
+                      00085 ; This code can be removed if low priority interrupts are not used.
+                      00086 
+000018                00087                 ORG 0x0018
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00090 ;High priority interrupt routine
-                      00091 ; The high priority interrupt code is placed here to avoid conflicting with
-                      00092 ; the low priority interrupt vector.
-                      00093 
-00001A                00094 HighInt:                
-                      00095                 ; test interrupt flags to identify pressed button
-00001A B0F2           00096                 btfsc INTCON,RBIF       ; pin 4/5 pressed
-00001C EC1A F000      00097                 call send_rb_on_change
-000020 B2F2           00098                 btfsc INTCON,INT0IF     ; pin 0 pressed
-000022 EC22 F000      00099                 call send_rb_0
-000026 B0F2           00100                 btfsc INTCON,INT1IF     ; pin 1 pressed
-000028 EC28 F000      00101                 call send_rb_1
-00002C B2F2           00102                 btfsc INTCON,INT2IF     ; pin 2 pressed
-00002E EC2E F000      00103                 call send_rb_2
-                      00104 
-000032 0011           00105                 retfie  FAST
-                      00106 
-000034                00107 send_rb_on_change:
-                      00108                 ; check if pin 4 or 5 was pressed
-000034 B881           00109                 btfsc PORTB,4
-000036 EC34 F000      00110                 call send_rb_4
-00003A BA81           00111                 btfsc PORTB,5
-00003C EC39 F000      00112                 call send_rb_5
-000040 90F2           00113                 bcf INTCON,RBIF
-000042 0012           00114                 return
-                      00115 
-000044                00116 send_rb_0:                                      ; send stop command
-000044 0E35           00117                 movlw b'00110101'
-000046 6E00           00118                 movwf bit_buffer_h
-000048 0E36           00119                 movlw b'00110110'
-00004A 6E01           00120                 movwf bit_buffer_l
-00004C 92F2           00121                 bcf INTCON,INT0IF
-00004E 0012           00122                 return
-                      00123 
-000050                00124 send_rb_1:                                      ; send forward command
-000050 0E35           00125                 movlw b'00110101'
-000052 6E00           00126                 movwf bit_buffer_h
-000054 0E34           00127                 movlw b'00110100'
-000056 6E01           00128                 movwf bit_buffer_l
-000058 90F2           00129                 bcf INTCON,INT1IF
-00005A 0012           00130                 return
-                      00131 
-00005C                00132 send_rb_2:                                      ; send pause command
-00005C 0E35           00133                 movlw b'00110101'
-00005E 6E00           00134                 movwf bit_buffer_h
-000060 0E30           00135                 movlw b'00110000'
-000062 6E01           00136                 movwf bit_buffer_l
-000064 92F2           00137                 bcf INTCON,INT2IF
-000066 0012           00138                 return
-                      00139 
-000068                00140 send_rb_4:                                      ; send play command
-000068 0E35           00141                 movlw b'00110101'
-00006A 6E00           00142                 movwf bit_buffer_h
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  4
+                      00088                 
+000018 D049           00089                 bra LowInt
+                      00090 
+                      00091 ;******************************************************************************
+                      00092 ;High priority interrupt routine
+                      00093 ; The high priority interrupt code is placed here to avoid conflicting with
+                      00094 ; the low priority interrupt vector.
+                      00095 
+00001A                00096 HighInt:
+                      00097 
+                      00098                 ; switch from falling edge to rising edge
+00001A 7CF1           00099                 btg INTCON2,INTEDG0
+00001C 7AF1           00100         btg     INTCON2,INTEDG1
+00001E 78F1           00101                 btg     INTCON2,INTEDG2
+                      00102                 
+000020 ACF1           00103                 btfss INTCON2,INTEDG0
+000022 EC19 F000      00104                 call send
+000026 BCF1           00105                 btfsc INTCON2,INTEDG0
+000028 EC17 F000      00106                 call stop
+                      00107                 
+                      00108                 
+00002C 0011           00109                 retfie FAST
+                      00110 
+00002E                00111 stop:
+                      00112                 ; deactivate sending
+00002E 9003           00113                 bcf running,0
+                      00114                 
+                      00115 ;               bsf INTCON,RBIF
+                      00116 ;               bsf INTCON,INT0IF
+                      00117 ;               bsf INTCON,INT1IF
+                      00118 ;               bsf INTCON,INT2IF
+                      00119                 
+000030 0012           00120                 return
+                      00121                 
+000032                00122 send:
+                      00123                 ; activate sending
+000032 8003           00124                 bsf running,0
+                      00125                 ; toggle bit
+000034 7002           00126                 btg bit_buffer_toggle,0
+                      00127                 ; test interrupt flags to identify pressed button
+000036 B0F2           00128                 btfsc INTCON,RBIF       ; pin 4/5 pressed
+000038 EC28 F000      00129                 call send_rb_on_change
+00003C B2F2           00130                 btfsc INTCON,INT0IF     ; pin 0 pressed
+00003E EC30 F000      00131                 call send_rb_0
+000042 B0F2           00132                 btfsc INTCON,INT1IF     ; pin 1 pressed
+000044 EC38 F000      00133                 call send_rb_1
+000048 B2F2           00134                 btfsc INTCON,INT2IF     ; pin 2 pressed
+00004A EC40 F000      00135                 call send_rb_2
+                      00136 
+00004E 0012           00137                 return
+                      00138 
+000050                00139 send_rb_on_change:
+                      00140                 ; check if pin 4 or 5 was pressed
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00006C 0E35           00143                 movlw b'00110101'
-00006E 6E01           00144                 movwf bit_buffer_l
-000070 0012           00145                 return
-                      00146 
-000072                00147 send_rb_5:                                      ; send backward command
-000072 0E35           00148                 movlw b'00110101'
-000074 6E00           00149                 movwf bit_buffer_h
-000076 0E32           00150                 movlw b'00110010'
-000078 6E01           00151                 movwf bit_buffer_l
-00007A 0012           00152                 return
-                      00153 
-                      00154 ;******************************************************************************
-                      00155 ;Low priority interrupt routine
-                      00156 
-00007C                00157 LowInt:
-                      00158                 
-                      00159                 ; stop timers
-00007C 9ED5           00160                 bcf T0CON,TMR0ON
-00007E 94CA           00161                 bcf T2CON,TMR2ON
-                      00162                 
-000080 94F2           00163                 bcf INTCON,TMR0IF
-                      00164 
-                      00165                 ; stop flag for delay loop
-000082 8004           00166                 bsf tmr_done,0
+000050 B881           00141                 btfsc PORTB,4
+000052 EC48 F000      00142                 call send_rb_4
+000056 BA81           00143                 btfsc PORTB,5
+000058 EC4F F000      00144                 call send_rb_5
+00005C 90F2           00145                 bcf INTCON,RBIF
+00005E 0012           00146                 return
+                      00147 
+000060                00148 send_rb_0:                                      ; send stop command
+000060 0E35           00149                 movlw b'00110101'
+000062 6E00           00150                 movwf bit_buffer_h
+000064 B002           00151                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000066 8600           00152                 bsf bit_buffer_h,3
+000068 0E36           00153                 movlw b'00110110'
+00006A 6E01           00154                 movwf bit_buffer_l
+00006C 92F2           00155                 bcf INTCON,INT0IF
+00006E 0012           00156                 return
+                      00157 
+000070                00158 send_rb_1:                                      ; send forward command
+000070 0E35           00159                 movlw b'00110101'
+000072 6E00           00160                 movwf bit_buffer_h
+000074 B002           00161                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000076 8600           00162                 bsf bit_buffer_h,3
+000078 0E34           00163                 movlw b'00110100'
+00007A 6E01           00164                 movwf bit_buffer_l
+00007C 90F2           00165                 bcf INTCON,INT1IF
+00007E 0012           00166                 return
                       00167 
-000084 0010           00168                 retfie
-                      00169 
-                      00170 
-                      00171 ;******************************************************************************
-                      00172 ;Interrupt configuration routines
-000086                00173 init_portb:
-                      00174                 ; Routine für INT0- INT2 
-000086 6A81           00175                 clrf     PORTB      
-                      00176      
-000088 90C2           00177                 bcf    ADCON0,ADON ; AD Converter disabled 
-                      00178       
-00008A 0EFF           00179                 movlw   0xFF
-00008C 6E93           00180                 movwf   TRISB  
-                      00181 
-00008E 0EFF           00182                 movlw    0xFF
-000090 6EC1           00183                 movwf    ADCON1
-                      00184 ; Clear Interrupt flags 
-                      00185 
-000092 92F2           00186         bcf     INTCON,INT0IF
-000094 90F0           00187                 bcf             INTCON3,INT1IF
-000096 92F0           00188                 bcf             INTCON3,INT2IF
-000098 90F2           00189         bcf             INTCON,RBIF
-                      00190     
-00009A 9EF1           00191         bcf     INTCON2,RBPU
-                      00192 
-                      00193 ; Enable Interrupts       
-00009C 88F2           00194         bsf     INTCON,INT0IE
-00009E 86F0           00195                 bsf             INTCON3,INT1IE
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  5
+000080                00168 send_rb_2:                                      ; send pause command
+000080 0E35           00169                 movlw b'00110101'
+000082 6E00           00170                 movwf bit_buffer_h
+000084 B002           00171                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000086 8600           00172                 bsf bit_buffer_h,3
+000088 0E30           00173                 movlw b'00110000'
+00008A 6E01           00174                 movwf bit_buffer_l
+00008C 92F2           00175                 bcf INTCON,INT2IF
+00008E 0012           00176                 return
+                      00177 
+000090                00178 send_rb_4:                                      ; send play command
+000090 0E35           00179                 movlw b'00110101'
+000092 6E00           00180                 movwf bit_buffer_h
+000094 B002           00181                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+000096 8600           00182                 bsf bit_buffer_h,3
+000098 0E35           00183                 movlw b'00110101'
+00009A 6E01           00184                 movwf bit_buffer_l
+00009C 0012           00185                 return
+                      00186 
+00009E                00187 send_rb_5:                                      ; send backward command
+00009E 0E35           00188                 movlw b'00110101'
+0000A0 6E00           00189                 movwf bit_buffer_h
+0000A2 B002           00190                 btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
+0000A4 8600           00191                 bsf bit_buffer_h,3
+0000A6 0E32           00192                 movlw b'00110010'
+0000A8 6E01           00193                 movwf bit_buffer_l
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0000A0 88F0           00196                 bsf             INTCON3,INT2IE
-0000A2 86F2           00197         bsf             INTCON,RBIE
+0000AA 0012           00194                 return
+                      00195 
+                      00196 ;******************************************************************************
+                      00197 ;Low priority interrupt routine
                       00198 
-                      00199 ; Set edges in this case on falling edge 
-0000A4 9CF1           00200         bcf     INTCON2,INTEDG0
-0000A6 9AF1           00201         bcf             INTCON2,INTEDG1
-0000A8 98F1           00202                 bcf             INTCON2,INTEDG2
-                      00203 
-                      00204 ; Interrupt priority of int1 / 2 needs to be configured 
-                      00205 
-0000AA 8EF2           00206         bsf     INTCON,GIEH  
-0000AC 8CF2           00207                 bsf     INTCON,GIEL 
-                      00208       
-0000AE 8ED0           00209                 bsf     RCON,IPEN ; Enables Priorities 
-                      00210 
-                      00211 ; Setting Priority high for INT1, INT2 
-0000B0 8EF0           00212                 bsf             INTCON3,INT2IP
-0000B2 8CF0           00213                 bsf             INTCON3,INT1IP
-0000B4 80F1           00214         bsf             INTCON2,RBIP ; Low Priority for interrupt on change
-                      00215 
-0000B6 0012           00216                 return
-                      00217 
-                      00218 ;******************************************************************************
-                      00219 ; Output configuration routines
-                      00220 
-0000B8                00221 init_portc:
-                      00222                 ; configure port c
-0000B8 6A82           00223                 clrf PORTC
-0000BA 6A8B           00224                 clrf LATC
-0000BC 6A94           00225                 clrf TRISC
-0000BE 0012           00226                 return
+0000AC                00199 LowInt:
+                      00200                 
+                      00201                 ; stop timers
+0000AC 9ED5           00202                 bcf T0CON,TMR0ON
+0000AE 94CA           00203                 bcf T2CON,TMR2ON
+                      00204                 
+0000B0 94F2           00205                 bcf INTCON,TMR0IF
+                      00206 
+                      00207                 ; stop flag for delay loop
+0000B2 8012           00208                 bsf tmr_done,0
+                      00209 
+0000B4 0010           00210                 retfie
+                      00211 
+                      00212 
+                      00213 ;******************************************************************************
+                      00214 ;Interrupt configuration routines
+0000B6                00215 init_portb:
+                      00216                 ; Routine für INT0- INT2 
+0000B6 6A81           00217                 clrf     PORTB      
+                      00218      
+0000B8 90C2           00219                 bcf    ADCON0,ADON ; AD Converter disabled 
+                      00220       
+0000BA 0EFF           00221                 movlw   0xFF
+0000BC 6E93           00222                 movwf   TRISB  
+                      00223 
+0000BE 0EFF           00224                 movlw    0xFF
+0000C0 6EC1           00225                 movwf    ADCON1
+                      00226 ; Clear Interrupt flags 
                       00227 
-0000C0                00228 init_tmr:
-                      00229                 ; configure pwm module
-0000C0 010F           00230                 banksel PR2
-0000C2 0E44           00231                 movlw 0x44                      ; configure period time with 0x44
-0000C4 6ECB           00232                 movwf PR2
-                      00233 
-0000C6 0E04           00234                 movlw b'00000100' ;b'00000100'  ; configure duty cycle with 0x11
-0000C8 6EBB           00235                 movwf CCPR2L
-0000CA 0E1C           00236                 movlw b'00011100' ;b'00011100'  ; configure pwm mode and 2 lsbs of duty cycle
-0000CC 6EBA           00237                 movwf CCP2CON
-                      00238 
-0000CE 0E00           00239                 movlw b'00000000'
-0000D0 6ECA           00240                 movwf T2CON
-                      00241 
-                      00242                 ; configure timer 0 for delay
-0000D2 0E08           00243                 movlw b'00001000'
-0000D4 6ED5           00244                 movwf T0CON
-                      00245         
-0000D6 94F2           00246                 bcf INTCON,TMR0IF ;interrupt flag
-0000D8 8AF2           00247                 bsf INTCON,TMR0IE ;interrupt enable
-0000DA 94F1           00248                 bcf INTCON2,TMR0IP ;low priority interrupt
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  6
+0000C2 92F2           00228         bcf     INTCON,INT0IF
+0000C4 90F0           00229                 bcf             INTCON3,INT1IF
+0000C6 92F0           00230                 bcf             INTCON3,INT2IF
+0000C8 90F2           00231         bcf             INTCON,RBIF
+                      00232     
+0000CA 9EF1           00233         bcf     INTCON2,RBPU
+                      00234 
+                      00235 ; Enable Interrupts       
+0000CC 88F2           00236         bsf     INTCON,INT0IE
+0000CE 86F0           00237                 bsf             INTCON3,INT1IE
+0000D0 88F0           00238                 bsf             INTCON3,INT2IE
+0000D2 86F2           00239         bsf             INTCON,RBIE
+                      00240 
+                      00241 ; Set edges in this case on falling edge 
+0000D4 9CF1           00242         bcf     INTCON2,INTEDG0
+0000D6 9AF1           00243         bcf             INTCON2,INTEDG1
+0000D8 98F1           00244                 bcf             INTCON2,INTEDG2
+                      00245 
+                      00246 ; Interrupt priority of int1 / 2 needs to be configured 
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0000DC 8EF2           00249                 bsf INTCON,GIE ;general interrupt enable
-                      00250 
-                      00251                 ;movlw 0x00
-                      00252                 ;movwf tmr_done         
-                      00253 
-0000DE 0012           00254                 return
-                      00255 
-0000E0                00256 init_i_o:
-                      00257                 ; configure all remaining ports as inputs for sleep mode
-0000E0 6A80           00258                 clrf    PORTA
-0000E2 0EFF           00259                 movlw   0xFF
-0000E4 6E92           00260                 movwf   TRISA
-0000E6 6A83           00261                 clrf    PORTD
-0000E8 0EFF           00262                 movlw   0xFF
-0000EA 6E95           00263                 movwf   TRISD
-0000EC 0012           00264                 return
-                      00265 
-                      00266 
-                      00267 ;******************************************************************************
-                      00268 ; Helper sender routines
-0000EE                00269 tmr_delay:
-                      00270                 ;start timer 0 for pausing
-0000EE 0EFF           00271                 movlw 0xFF
-0000F0 6ED7           00272                 movwf TMR0H
-0000F2 0E52           00273                 movlw 0x52
-0000F4 6ED6           00274                 movwf TMR0L
-0000F6 8ED5           00275                 bsf T0CON,TMR0ON
-0000F8 EC8B F000      00276                 call delay_loop
-0000FC 0012           00277                 return
-                      00278 
-0000FE                00279 pwm_delay:
-                      00280                 ;load timer 0 for half bit
-0000FE 0EFF           00281                 movlw 0xFF
-000100 6ED7           00282                 movwf TMR0H
-000102 0E52           00283                 movlw 0x52
-000104 6ED6           00284                 movwf TMR0L
-                      00285                 ;load timer 2 for pwm
-000106 0E00           00286                 movlw 0x00
-000108 6ECC           00287                 movwf TMR2
-00010A 828B           00288                 bsf LATC,1 ;set first pulse manually
-                      00289 
-00010C 8ED5           00290                 bsf T0CON,TMR0ON
-00010E 84CA           00291                 bsf T2CON,TMR2ON
+                      00247 
+0000DA 8EF2           00248         bsf     INTCON,GIEH  
+0000DC 8CF2           00249                 bsf     INTCON,GIEL 
+                      00250       
+0000DE 8ED0           00251                 bsf     RCON,IPEN ; Enables Priorities 
+                      00252 
+                      00253 ; Setting Priority high for INT1, INT2 
+0000E0 8EF0           00254                 bsf             INTCON3,INT2IP
+0000E2 8CF0           00255                 bsf             INTCON3,INT1IP
+0000E4 80F1           00256         bsf             INTCON2,RBIP ; Low Priority for interrupt on change
+                      00257 
+0000E6 0012           00258                 return
+                      00259 
+                      00260 ;******************************************************************************
+                      00261 ; Output configuration routines
+                      00262 
+0000E8                00263 init_portc:
+                      00264                 ; configure port c
+0000E8 6A82           00265                 clrf PORTC
+0000EA 6A8B           00266                 clrf LATC
+0000EC 6A94           00267                 clrf TRISC
+0000EE 0012           00268                 return
+                      00269 
+0000F0                00270 init_tmr:
+                      00271                 ; configure pwm module
+0000F0 010F           00272                 banksel PR2
+0000F2 0E44           00273                 movlw 0x44                      ; configure period time with 0x44
+0000F4 6ECB           00274                 movwf PR2
+                      00275 
+0000F6 0E05           00276                 movlw b'00000101' ;b'00000100'  ; configure duty cycle with 0x11
+0000F8 6EBB           00277                 movwf CCPR2L
+0000FA 0E2C           00278                 movlw b'00101100' ;b'00011100'  ; configure pwm mode and 2 lsbs of duty cycle
+0000FC 6EBA           00279                 movwf CCP2CON
+                      00280 
+0000FE 0E00           00281                 movlw b'00000000'
+000100 6ECA           00282                 movwf T2CON
+                      00283 
+                      00284                 ; configure timer 0 for delay
+000102 0E08           00285                 movlw b'00001000'
+000104 6ED5           00286                 movwf T0CON
+                      00287         
+000106 94F2           00288                 bcf INTCON,TMR0IF ;interrupt flag
+000108 8AF2           00289                 bsf INTCON,TMR0IE ;interrupt enable
+00010A 94F1           00290                 bcf INTCON2,TMR0IP ;low priority interrupt
+00010C 8EF2           00291                 bsf INTCON,GIE ;general interrupt enable
                       00292 
-000110 EC8B F000      00293                 call delay_loop
-                      00294 
-000114 0012           00295                 return
-                      00296 
-                      00297 ;wait for interrupt to end half bit
-000116                00298 delay_loop:
-000116 A004           00299                 btfss tmr_done,0
-000118 D7FE           00300                 bra delay_loop
-00011A 9004           00301                 bcf tmr_done,0
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  7
+                      00293                 ;movlw 0x00
+                      00294                 ;movwf tmr_done         
+                      00295 
+00010E 0012           00296                 return
+                      00297 
+000110                00298 init_i_o:
+                      00299                 ; configure all remaining ports as inputs for sleep mode
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00011C 0012           00302                 return
-                      00303                 
-                      00304 
-00011E                00305 send_0:
-00011E EC77 F000      00306                 call tmr_delay
-000122 EC7F F000      00307                 call pwm_delay
-000126 0012           00308                 return
-                      00309 
-000128                00310 send_1:
-000128 EC7F F000      00311                 call pwm_delay
-00012C EC77 F000      00312                 call tmr_delay
-000130 0012           00313                 return
-                      00314 
-                      00315 ;******************************************************************************
-                      00316 ; Main sender routine
-                      00317 
-000132                00318 send_command:
-                      00319                 ;skip first two bits
-000132 3601           00320                 rlcf bit_buffer_l
-000134 3600           00321                 rlcf bit_buffer_h
-000136 3601           00322                 rlcf bit_buffer_l
-000138 3600           00323                 rlcf bit_buffer_h
-                      00324                 ;init bit counter
-00013A 0E0E           00325                 movlw d'14'
-00013C 6E02           00326                 movwf bit_ctr
-00013E EFA2 F000      00327                 goto send_bit
-000142 0012           00328                 return
-                      00329 
-000144                00330 send_bit:
-000144 3601           00331                 rlcf bit_buffer_l
-000146 3600           00332                 rlcf bit_buffer_h
-000148 A0D8           00333                 btfss STATUS,C
-00014A EC8F F000      00334                 call send_0
-00014E EC94 F000      00335                 call send_1
-000152 2E02           00336                 decfsz bit_ctr
-000154 D7F7           00337                 bra send_bit
-000156 0012           00338                 return
-                      00339 
-                      00340 
-                      00341 ;******************************************************************************
-                      00342 ;Start of main program
-                      00343 ; The main program code is placed here.
-                      00344 
-000158                00345 Main:
-000158 EC43 F000      00346                 call init_portb
-00015C EC5C F000      00347                 call init_portc
-000160 EC60 F000      00348                 call init_tmr
-000164 EC70 F000      00349                 call init_i_o
-                      00350 
-                      00351                 ; temp: send command 256 times
-000168 0EFF           00352                 movlw 0xFF
-00016A 6E03           00353                 movwf command_ctr
-                      00354 
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  8
+000110 6A80           00300                 clrf    PORTA
+000112 0EFF           00301                 movlw   0xFF
+000114 6E92           00302                 movwf   TRISA
+000116 6A83           00303                 clrf    PORTD
+000118 0EFF           00304                 movlw   0xFF
+00011A 6E95           00305                 movwf   TRISD
+00011C 0012           00306                 return
+                      00307 
+                      00308 
+                      00309 ;******************************************************************************
+                      00310 ; Helper sender routines
+00011E                00311 tmr_delay:
+                      00312                 ;start timer 0 for pausing
+00011E 0EFF           00313                 movlw 0xFF ; 0xF7
+000120 6ED7           00314                 movwf TMR0H
+000122 0E52           00315                 movlw 0x52
+000124 6ED6           00316                 movwf TMR0L
+000126 8ED5           00317                 bsf T0CON,TMR0ON
+000128 ECA3 F000      00318                 call delay_loop
+00012C 0012           00319                 return
+                      00320 
+00012E                00321 pwm_delay:
+                      00322                 ;load timer 0 for half bit
+00012E 0EFF           00323                 movlw 0xFF ; 0xF7
+000130 6ED7           00324                 movwf TMR0H
+000132 0E52           00325                 movlw 0x52
+000134 6ED6           00326                 movwf TMR0L
+                      00327                 ;load timer 2 for pwm
+000136 0E00           00328                 movlw 0x00
+000138 6ECC           00329                 movwf TMR2
+00013A 828B           00330                 bsf LATC,1 ;set first pulse manually
+                      00331 
+00013C 8ED5           00332                 bsf T0CON,TMR0ON
+00013E 84CA           00333                 bsf T2CON,TMR2ON
+                      00334 
+000140 ECA3 F000      00335                 call delay_loop
+                      00336 
+000144 0012           00337                 return
+                      00338 
+                      00339 ;wait for interrupt to end half bit
+000146                00340 delay_loop:
+000146 A012           00341                 btfss tmr_done,0
+000148 D7FE           00342                 bra delay_loop
+00014A 9012           00343                 bcf tmr_done,0
+00014C 0012           00344                 return
+                      00345                 
+                      00346 
+00014E                00347 send_0:
+00014E EC8F F000      00348                 call tmr_delay
+000152 EC97 F000      00349                 call pwm_delay
+000156 0012           00350                 return
+                      00351 
+000158                00352 send_1:
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00016C 9ED3           00355                 bcf OSCCON,IDLEN
-00016E                00356 go_to_sleep
-00016E 0003           00357                 sleep
-000170 0000           00358                 nop
-000172 EC99 F000      00359                 call send_command
-000176 2E03           00360                 decfsz command_ctr
-000178 D7FA           00361                 bra go_to_sleep
-                      00362 
-                      00363 
-                      00364 
-                      00365 
-                      00366 ;******************************************************************************
-                      00367 ;End of program
-00017A EFBD F000      00368         goto $
-                      00369                 END
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE  9
+000158 EC97 F000      00353                 call pwm_delay
+00015C EC8F F000      00354                 call tmr_delay
+000160 0012           00355                 return
+                      00356 
+                      00357 ;******************************************************************************
+                      00358 ; Main sender routine
+                      00359 
+000162                00360 send_command:
+                      00361                 ;skip first two bits
+000162 3601           00362                 rlcf bit_buffer_l
+000164 3600           00363                 rlcf bit_buffer_h
+000166 3601           00364                 rlcf bit_buffer_l
+000168 3600           00365                 rlcf bit_buffer_h
+                      00366                 ;init bit counter
+00016A 0E0E           00367                 movlw d'14'
+00016C 6E10           00368                 movwf bit_ctr
+00016E EFBA F000      00369                 goto send_bit
+000172 0012           00370                 return
+                      00371 
+000174                00372 send_bit:
+000174 3601           00373                 rlcf bit_buffer_l
+000176 3600           00374                 rlcf bit_buffer_h
+000178 A0D8           00375                 btfss STATUS,C
+00017A ECA7 F000      00376                 call send_0
+00017E ECAC F000      00377                 call send_1
+000182 2E10           00378                 decfsz bit_ctr
+000184 D7F7           00379                 bra send_bit
+000186 0012           00380                 return
+                      00381 
+                      00382 
+                      00383 ;******************************************************************************
+                      00384 ;Start of main program
+                      00385 ; The main program code is placed here.
+                      00386 
+000188                00387 Main:
+000188 EC5B F000      00388                 call init_portb
+00018C EC74 F000      00389                 call init_portc
+000190 EC78 F000      00390                 call init_tmr
+000194 EC88 F000      00391                 call init_i_o
+                      00392 
+                      00393                 ; temp: send command 256 times
+000198 0EFF           00394                 movlw 0xFF
+00019A 6E11           00395                 movwf command_ctr
+00019C 0E00           00396                 movlw 0x00
+00019E 6E02           00397                 movwf bit_buffer_toggle
+0001A0 0E00           00398                 movlw 0x00
+0001A2 6E03           00399                 movwf running
+                      00400 
+                      00401                 ; initial sleep
+0001A4 9ED3           00402                 bcf OSCCON,IDLEN
+0001A6 0003           00403                 sleep
+0001A8 0000           00404                 nop
+                      00405                 
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00406                 ; wakeup
+0001AA                00407 check_running:
+0001AA B003           00408                 btfsc running,0
+0001AC ECB1 F000      00409                 call send_command
+0001B0 A003           00410                 btfss running,0
+0001B2 0003           00411                 sleep
+0001B4 0000           00412                 nop
+0001B6 D7F9           00413                 bra check_running
+                      00414 
+                      00415 
+                      00416 
+                      00417 
+                      00418 ;******************************************************************************
+                      00419 ;End of program
+0001B8 EFDC F000      00420         goto $
+                      00421                 END
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 10
 
 
 SYMBOL TABLE
@@ -491,7 +551,7 @@ C1OUT                             00000006
 C2INV                             00000005
 C2OUT                             00000007
 CCP1                              00000002
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 10
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 11
 
 
 SYMBOL TABLE
@@ -550,7 +610,7 @@ CVR2                              00000002
 CVR3                              00000003
 CVRCON                            00000FB5
 CVREN                             00000007
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 11
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 12
 
 
 SYMBOL TABLE
@@ -609,7 +669,7 @@ GIE_GIEH                          00000007
 GO                                00000001
 GO_DONE                           00000001
 GO_NOT_DONE                       00000001
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 12
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 13
 
 
 SYMBOL TABLE
@@ -668,7 +728,7 @@ IRCF2                             00000006
 IRVST                             00000005
 IVRST                             00000005
 KBI0                              00000004
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 13
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 14
 
 
 SYMBOL TABLE
@@ -727,7 +787,7 @@ LVDL0                             00000000
 LVDL1                             00000001
 LVDL2                             00000002
 LVDL3                             00000003
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 14
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 15
 
 
 SYMBOL TABLE
@@ -737,9 +797,9 @@ LVV0                              00000000
 LVV1                              00000001
 LVV2                              00000002
 LVV3                              00000003
-LowInt                            0000007C
+LowInt                            000000AC
 MCLR                              00000003
-Main                              00000158
+Main                              00000188
 N                                 00000004
 NOT_A                             00000005
 NOT_ADDRESS                       00000005
@@ -786,7 +846,7 @@ PD                                00000002
 PDC0                              00000000
 PDC1                              00000001
 PDC2                              00000002
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 15
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 16
 
 
 SYMBOL TABLE
@@ -845,7 +905,7 @@ PSPIP                             00000007
 PSPMODE                           00000004
 PSSAC0                            00000002
 PSSAC1                            00000003
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 16
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 17
 
 
 SYMBOL TABLE
@@ -904,7 +964,7 @@ RD6                               00000006
 RD7                               00000007
 RE0                               00000000
 RE1                               00000001
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 17
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 18
 
 
 SYMBOL TABLE
@@ -963,7 +1023,7 @@ STKFUL                            00000007
 STKOVF                            00000007
 STKPTR                            00000FFC
 STKPTR0                           00000000
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 18
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 19
 
 
 SYMBOL TABLE
@@ -1022,7 +1082,7 @@ TMR0IE                            00000005
 TMR0IF                            00000002
 TMR0IP                            00000002
 TMR0L                             00000FD6
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 19
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 20
 
 
 SYMBOL TABLE
@@ -1081,7 +1141,7 @@ TRISC                             00000F94
 TRISC0                            00000000
 TRISC1                            00000001
 TRISC2                            00000002
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 20
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 21
 
 
 SYMBOL TABLE
@@ -1140,7 +1200,7 @@ _BOREN_OFF_2L                     000000F9
 _BOREN_ON_2L                      000000FB
 _BOREN_SBORDIS_2L                 000000FF
 _BORV_0_2L                        000000E7
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 21
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 22
 
 
 SYMBOL TABLE
@@ -1199,7 +1259,7 @@ _IESO_ON_1H                       000000FF
 _LPT1OSC_OFF_3H                   000000FB
 _LPT1OSC_ON_3H                    000000FF
 _LVP_OFF_4L                       000000FB
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 22
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 23
 
 
 SYMBOL TABLE
@@ -1258,7 +1318,7 @@ _XINST_OFF_4L                     000000BF
 _XINST_ON_4L                      000000FF
 __18F4525                         00000001
 __DEBUG                           1
-MPASM  5.51                IR_REMOTE_MAIN.ASM   6-13-2024  19:09:06         PAGE 23
+MPASM  5.51                IR_REMOTE_MAIN.ASM   6-14-2024  10:03:51         PAGE 24
 
 
 SYMBOL TABLE
@@ -1266,27 +1326,31 @@ SYMBOL TABLE
 
 bit_buffer_h                      00000000
 bit_buffer_l                      00000001
-bit_ctr                           00000002
-command_ctr                       00000003
-delay_loop                        00000116
-go_to_sleep                       0000016E
-init_i_o                          000000E0
-init_portb                        00000086
-init_portc                        000000B8
-init_tmr                          000000C0
-pwm_delay                         000000FE
-send_0                            0000011E
-send_1                            00000128
-send_bit                          00000144
-send_command                      00000132
-send_rb_0                         00000044
-send_rb_1                         00000050
-send_rb_2                         0000005C
-send_rb_4                         00000068
-send_rb_5                         00000072
-send_rb_on_change                 00000034
-tmr_delay                         000000EE
-tmr_done                          00000004
+bit_buffer_toggle                 00000002
+bit_ctr                           00000010
+check_running                     000001AA
+command_ctr                       00000011
+delay_loop                        00000146
+init_i_o                          00000110
+init_portb                        000000B6
+init_portc                        000000E8
+init_tmr                          000000F0
+pwm_delay                         0000012E
+running                           00000003
+send                              00000032
+send_0                            0000014E
+send_1                            00000158
+send_bit                          00000174
+send_command                      00000162
+send_rb_0                         00000060
+send_rb_1                         00000070
+send_rb_2                         00000080
+send_rb_4                         00000090
+send_rb_5                         0000009E
+send_rb_on_change                 00000050
+stop                              0000002E
+tmr_delay                         0000011E
+tmr_done                          00000012
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
@@ -1296,18 +1360,19 @@ MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXX--
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXX----
 0000 : -XXX-XX-XXXXXX-- ---------------- ---------------- ----------------
 0000 : XXXXXXXXXXXXXXXX ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Bytes Used:   391
-Program Memory Bytes Free: 48761
+Program Memory Bytes Used:   453
+Program Memory Bytes Free: 48699
 
 
 Errors   :     0
-Warnings :     5 reported,     0 suppressed
+Warnings :     7 reported,     0 suppressed
 Messages :     0 reported,     0 suppressed
 
 
