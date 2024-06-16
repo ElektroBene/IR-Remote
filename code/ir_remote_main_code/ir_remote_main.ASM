@@ -184,7 +184,7 @@ LowInt:
 ;******************************************************************************
 ;Interrupt configuration routines
 init_portb:
-		; Routine für INT0- INT2 
+		; Routine f r INT0- INT2 
 		clrf	 PORTB      
      
 		bcf    ADCON0,ADON ; AD Converter disabled 
