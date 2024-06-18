@@ -41,6 +41,7 @@
 ;******************************************************************************
 ;Variable definitions
 		reset_timers equ 0x00
+		send equ 0x01
 	
 ;******************************************************************************
 ;EEPROM data
@@ -75,10 +76,14 @@
 HighInt:
 
 ;	*** high priority interrupt code goes here ***
-		bcf T0CON,TMR0ON
-		bcf T2CON,TMR2ON
+		bcf INTCON,INT0IF
+		bcf INTCON3,INT1IF
+		bcf INTCON3,INT2IF
+		bcf INTCON,RBIF
 
-		bsf reset_timers,0
+		bsf send,0
+		
+;		call isr
 
 		retfie	FAST
 
@@ -98,17 +103,85 @@ HighInt:
 LowInt:
 
 ;	*** low priority interrupt code goes here ***
+		bcf T0CON,TMR0ON
+		bcf T2CON,TMR2ON
+
+		bcf INTCON,TMR0IF
+
+		bsf reset_timers,0
 
 
 		retfie	FAST
 
 ;******************************************************************************
 
+isr:
+		;bsf send,0
+
+		bcf T0CON,TMR0ON
+		bcf T2CON,TMR2ON
+
+		bcf INTCON,TMR0IF
+
+		bsf reset_timers,0
+		return
+
 init_portb:
 		; Routine f r INT0- INT2 
 		;clrf	PORTB
 		clrf	PORTB
 		clrf LATB
+     
+		bcf    ADCON0,ADON ; AD Converter disabled 
+      
+
+		movlw	 0xFF
+		movwf	 ADCON1
+
+		movlw	0xFF
+		movwf	TRISB  
+		
+		movlw	b'00111011'
+		movwf	PORTB
+; Clear Interrupt flags
+    	bcf 	INTCON,INT0IF
+		bcf		INTCON3,INT1IF
+		bcf		INTCON3,INT2IF
+    	bcf		INTCON,RBIF
+    
+    	bcf 	INTCON2,RBPU
+
+; Enable Interrupts       
+    	bsf 	INTCON,INT0IE
+		bsf		INTCON3,INT1IE
+		bsf		INTCON3,INT2IE
+    	bsf		INTCON,RBIE
+
+; Set edges in this case on falling edge 
+    	bcf 	INTCON2,INTEDG0
+    	bcf		INTCON2,INTEDG1
+		bcf		INTCON2,INTEDG2
+
+; Interrupt priority of int1 / 2 needs to be configured 
+
+    	bsf 	INTCON,GIEH  
+		bsf 	INTCON,GIEL 
+		bsf		INTCON,GIE
+      
+		bsf 	RCON,IPEN ; Enables Priorities 
+
+; Setting Priority high for INT1, INT2 
+		bsf		INTCON3,INT2IP
+		bsf		INTCON3,INT1IP
+    	bsf		INTCON2,RBIP ; Low Priority for interrupt on change
+
+		
+		;
+		;movlw b'11111000'
+		;movwf INTCON
+		;
+
+		return
 
 init_ports
 		CLRF PORTA ; Initialize PORTA by
@@ -156,9 +229,10 @@ Main:
 		clrf LATC
 		movlw b'11111101'
 		movwf TRISC
+		call init_portb
+		call init_ports
 		
 		bsf LATC,1
-
 		
 		; configure pwm module
 		banksel PR2
@@ -169,12 +243,6 @@ Main:
 		movwf CCPR2L
 		movlw b'00001100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
 		movwf CCP2CON
-		
-		;bcf T2CON,T2CKPS1	; configure timer prescale value with 1
-		;bcf T2CON,T2CKPS0
-		;bsf T2CON,TMR2ON	; enable timer
-		;movlw b'00001100'	; configure timer postscale, prescale and turn on timer
-		;movwf T2CON
 		
 		bcf PIR1,TMR2IF
 		bcf T2CON,T2CKPS1
@@ -191,54 +259,26 @@ Main:
 		movwf TMR0L
 		bcf INTCON,TMR0IF ;interrupt flag
 		bsf INTCON,TMR0IE ;interrupt enable
-		bsf INTCON2,TMR0IP ;high priority interrupt
+		bcf INTCON2,TMR0IP ;high priority interrupt
 		bsf INTCON,GIE ;general interrupt enable
-
-		
-		; start timer 2 for pwm
-;		movlw 0x20
-;		movwf tmr_cnt
-		
-;		movlw b'00000000'
-;		movwf T2CON
-;		movlw 0x00
-;		movwf TMR2
-;
-;		bcf PIR1,TMR2IF
-;		bcf PIE1,TMR2IE ; Enable Timer1 interrupt
-
-
 
 		movlw 0x00
 		movwf reset_timers
 
+		movlw 0x00
+		movwf send
 
-		
+wait_loop
+		btfss send,0
+		bra wait_loop
+
 		; start timers
-		bsf T0CON,TMR0ON
-		bsf T2CON,TMR2ON
-
-		
-
-		;bsf PORTB,0x03
-		
-		;banksel CCP2CON
-		;bsf CCP2CON, 0x03	; turn on pwm mode with 11xx
-		;bsf CCP2CON, 0x02
-
-		;bcf PORTB,0x03
-;reset_loop
-;		movlw 0x00
-;		movwf TMR2
 ;		movlw 0xF7
 ;		movwf TMR0H
 ;		movlw 0x52
 ;		movwf TMR0L
-;send_loop
-;				
-;		btfss reset_timers,0
-;		bra send_loop
-;		bra reset_loop
+		bsf T0CON,TMR0ON
+		bsf T2CON,TMR2ON
 
 send_loop
 		btfss reset_timers,0
