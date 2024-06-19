@@ -1,0 +1,94 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Wed Jun 19 14:46:48 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_2       code   0x000000    program   0x000004
+                   .org_3       code   0x000008    program   0x00000e
+                   .org_4       code   0x000018    program   0x000172
+.config_300001_18F4525TEMP(1).O    romdata   0x300001    program   0x000001
+.config_300002_18F4525TEMP(1).O    romdata   0x300002    program   0x000001
+.config_300003_18F4525TEMP(1).O    romdata   0x300003    program   0x000001
+.config_300005_18F4525TEMP(1).O    romdata   0x300005    program   0x000001
+.config_300006_18F4525TEMP(1).O    romdata   0x300006    program   0x000001
+.config_300008_18F4525TEMP(1).O    romdata   0x300008    program   0x000001
+.config_300009_18F4525TEMP(1).O    romdata   0x300009    program   0x000001
+.config_30000A_18F4525TEMP(1).O    romdata   0x30000a    program   0x000001
+.config_30000B_18F4525TEMP(1).O    romdata   0x30000b    program   0x000001
+.config_30000C_18F4525TEMP(1).O    romdata   0x30000c    program   0x000001
+.config_30000D_18F4525TEMP(1).O    romdata   0x30000d    program   0x000001
+                   .org_1       code   0xf00000    program   0x000010
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x000015      
+                            0x000018    0x000189      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+                            0xf00000    0xf0000f      
+            415 out of 50200 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                     Init   0x000172    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                  LichtAn   0x00013c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAn1   0x00014c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAn2   0x000154    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAus   0x00012c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                LichtAus2   0x000130    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   LowInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                     Main   0x0000c6    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   TxEins   0x000122    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   TxNull   0x000118    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               delay_loop   0x0000aa    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               init_portb   0x00002e    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               init_ports   0x000068    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                      isr   0x000024    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                pwm_delay   0x000092    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   send_0   0x0000b2    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   send_1   0x0000bc    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            send_bit_loop   0x000100    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            send_cmd_loop   0x0000f0    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                tmr_delay   0x000082    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            wait_cmd_loop   0x0000d6    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   LowInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                      isr   0x000024    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               init_portb   0x00002e    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               init_ports   0x000068    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                tmr_delay   0x000082    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                pwm_delay   0x000092    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+               delay_loop   0x0000aa    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   send_0   0x0000b2    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   send_1   0x0000bc    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                     Main   0x0000c6    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            wait_cmd_loop   0x0000d6    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            send_cmd_loop   0x0000f0    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+            send_bit_loop   0x000100    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   TxNull   0x000118    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                   TxEins   0x000122    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAus   0x00012c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                LichtAus2   0x000130    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                  LichtAn   0x00013c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAn1   0x00014c    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                 LichtAn2   0x000154    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+                     Init   0x000172    program     static C:\Users\BMDT\Documents\MSE\IR-Remote-main\code\ir_remote_develop_main_code\18F4525TEMP(1).ASM
+
+
