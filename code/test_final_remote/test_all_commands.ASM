@@ -48,12 +48,11 @@
 		tmr_done equ 0x05
 		cmd_ctr equ 0x06
 		rev_bit_ctr equ 0x07
-		bit_buffer_toggle equ 0x08
 
-		#define timer_0_h 0x09
-		#define timer_0_l 0x0A
+		send_buffer equ 0x08
 
-
+		save_port_b equ 0x09
+		skip_release equ 0x0A
 	
 ;******************************************************************************
 ;EEPROM data
@@ -88,15 +87,14 @@
 
 HighInt:
 
-;	*** high priority interrupt code goes here ***
+;	*** high priority interrupt code goes here **
+
+		call interrupt_routine
+
 		bcf INTCON,INT0IF
 		bcf INTCON3,INT1IF
 		bcf INTCON3,INT2IF
 		bcf INTCON,RBIF
-
-		bsf send,0
-		
-;		call isr
 
 		retfie	FAST
 
@@ -124,117 +122,105 @@ LowInt:
 		bsf tmr_done,0
 
 
-
-
 		retfie	FAST
 
 ;******************************************************************************
 
-isr:
-		;bsf send,0
+interrupt_routine:
 
-		bcf T0CON,TMR0ON
-		bcf T2CON,TMR2ON
+;		clrf save_port_b
+;		btfss PORTB,4
+;		bsf save_port_b,4
+;		btfss PORTB,5
+;		bsf save_port_b,5
 
-		bcf INTCON,TMR0IF
+		bsf send,0
+;		movlw b'00110101'
+;		movwf bit_buffer_h
+;		movlw b'11111111'
+;		movwf bit_buffer_l
 
-		bsf reset_timers,0
-
-		
-		;movlw b'00110101'
-		;movwf bit_buffer_h
-		;movlw b'00110101'
-		;movwf bit_buffer_l
-
-		; toggle bit
-		btg bit_buffer_toggle,0
 		; test interrupt flags to identify pressed button
 		btfsc INTCON,RBIF	; pin 4/5 pressed
 		call send_rb_on_change
 		btfsc INTCON,INT0IF	; pin 0 pressed
 		call send_rb_0
-		btfsc INTCON,INT1IF	; pin 1 pressed
+		btfsc INTCON3,INT1IF	; pin 1 pressed
 		call send_rb_1
-		btfsc INTCON,INT2IF	; pin 2 pressed
+		btfsc INTCON3,INT2IF	; pin 2 pressed
 		call send_rb_2
-
 
 		return
 
 
 send_rb_on_change:
+		;btg skip_release,0
 		; check if pin 4 or 5 was pressed
-		btfsc PORTB,4
-		call send_rb_4
-		btfsc PORTB,5
-		call send_rb_5
 		bcf INTCON,RBIF
+
+		btfss PORTB,4
+		;btfsc save_port_b,4
+		call send_rb_4
+		btfss PORTB,5
+		;btfsc save_port_b,5
+		call send_rb_5
 		return
 send_rb_0:					; send stop command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
-		bsf bit_buffer_h,3
-		btfss bit_buffer_toggle,0
-		bcf bit_buffer_h,3
 		movlw b'00110110'
 		movwf bit_buffer_l
 		bcf INTCON,INT0IF
+		bsf send_buffer,0
 		return
 send_rb_1:					; send forward command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle,0 ; set toggle bit in bit buffer
-		bsf bit_buffer_h,3
-		btfss bit_buffer_toggle,0
-		bcf bit_buffer_h,3
 		movlw b'00110100'
 		movwf bit_buffer_l
 		bcf INTCON,INT1IF
+		bsf send_buffer,1
 		return
 send_rb_2:					; send pause command
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
-		bsf bit_buffer_h,3
-		btfss bit_buffer_toggle,0
-		bcf bit_buffer_h,3
 		movlw b'00110000'
 		movwf bit_buffer_l
 		bcf INTCON,INT2IF
+		bsf send_buffer,2
 		return
 send_rb_4:					; send play command
+		;btg skip_release,0
+;		btfsc skip_release,4 ; skip when pin 4/5 was pressed
+;		return
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
-		bsf bit_buffer_h,3
-		btfss bit_buffer_toggle,0
-		bcf bit_buffer_h,3
 		movlw b'00110101'
 		movwf bit_buffer_l
+		bsf send_buffer,4
 		return
 
 send_rb_5:					; send backward command
+		;btg skip_release,0
+;		btfsc skip_release,5
+;		return
 		movlw b'00110101'
 		movwf bit_buffer_h
-		btfsc bit_buffer_toggle ; set toggle bit in bit buffer
-		bsf bit_buffer_h,3
-		btfss bit_buffer_toggle,0
-		bcf bit_buffer_h,3
 		movlw b'00110010'
 		movwf bit_buffer_l
+		bsf send_buffer,5
 		return
 
 
 ;******************************************************************************
 
-; configure port b as input port
-init_port_b:
-		; Routine f r INT0- INT2
-		clrf PORTB
+init_portb:
+		; Routine f r INT0- INT2 
+		;clrf	PORTB
+		clrf	PORTB
 		clrf LATB
      
-		bcf    ADCON0,ADON 		; disable ad converter
+		bcf    ADCON0,ADON ; AD Converter disabled 
       
 
 		movlw	 0xFF
@@ -245,8 +231,7 @@ init_port_b:
 		
 		movlw	b'00111011'
 		movwf	PORTB
-
-; clear interrupt flags for interrupts 0,1,2 and port b on change interrupts
+; Clear Interrupt flags
     	bcf 	INTCON,INT0IF
 		bcf		INTCON3,INT1IF
 		bcf		INTCON3,INT2IF
@@ -254,33 +239,38 @@ init_port_b:
     
     	bcf 	INTCON2,RBPU
 
-; enable interrupts 0,1,2 and on change interrupts       
+; Enable Interrupts       
     	bsf 	INTCON,INT0IE
 		bsf		INTCON3,INT1IE
 		bsf		INTCON3,INT2IE
     	bsf		INTCON,RBIE
 
-; set edges for interrupts 0,1,2 to falling edge 
+; Set edges in this case on falling edge 
     	bcf 	INTCON2,INTEDG0
     	bcf		INTCON2,INTEDG1
 		bcf		INTCON2,INTEDG2
 
-; configure interrupt priority for interrupt 0,1,2 to high priority
+; Interrupt priority of int1 / 2 needs to be configured 
 
     	bsf 	INTCON,GIEH  
 		bsf 	INTCON,GIEL 
 		bsf		INTCON,GIE
       
-		bsf 	RCON,IPEN 		; enable priorities 
+		bsf 	RCON,IPEN ; Enables Priorities 
 
-; set high priority for INT1, INT2 -> int0????????????????????????????????????????????????????????????????????????????
+; Setting Priority high for INT1, INT2 
 		bsf		INTCON3,INT2IP
 		bsf		INTCON3,INT1IP
     	bsf		INTCON2,RBIP ; Low Priority for interrupt on change
 
+		
+		;
+		;movlw b'11111000'
+		;movwf INTCON
+		;
+
 		return
 
-; configure ports a, b and d as digital inputs
 init_ports
 		CLRF PORTA ; Initialize PORTA by
 					; clearing output
@@ -313,80 +303,28 @@ init_ports
 		
 		return
 
-; configure port c with RC1 as output pin
-init_port_c:
-		; configure port c
-		clrf PORTC
-		clrf LATC
-		movlw b'11111101'
-		movwf TRISC
-		return
-
-; configure pwm module and timer 2 to be able to send bits
-init_pwm:
-		; configure pwm module with timer 2
-		banksel PR2
-		movlw 0x46			; configure period time with 0x44
-		movwf PR2
-
-		movlw b'00010101'		; configure duty cycle to be between 1/4 and 1/3 of the whole cycle
-		movwf CCPR2L
-		movlw b'00001100'		; activate pwm mode and configure 2 lsbs of duty cycle
-		movwf CCP2CON
-		
-		;bcf PIR1,TMR2IF			; reset interrupt flag for timer 2
-		bcf T2CON,T2CKPS1		; configure timer 2 prescaler for cycle calculation
-		bcf T2CON,T2CKPS0
-		
-		; start timer 0 for half bit
-		movlw b'00001000'
-		movwf T0CON
-		bcf INTCON,TMR0IF 		; reset interrupt flag for timer 0
-		bsf INTCON,TMR0IE 		; enable timer 0 interrupt on overflow
-		bcf INTCON2,TMR0IP 		; set timer 0 interrupt priority to high interrupt
-		bsf INTCON,GIE 			; enable general interrupt register
-
-		movlw 0x00
-		movwf reset_timers
-		
-;		; preload timer values
-;		movlw 0xF7
-;		movwf TMR0H
-;		movlw 0x70
-;		movwf TMR0L
-;		;load timer 2 for pwm
-;		movlw 0x00
-;		movwf TMR2
-		movlw 0xF7
-		movwf timer_0_h
-		movlw 0x70
-		movwf timer_0_l
-
-		return
 
 
-; start delay with 889 us pause which indicates the half of a bit without any signal
 tmr_delay:
 		;start timer 0 for pausing
-		movlw tmr_0_h
+		movlw 0xF7
 		movwf TMR0H
-		movlw tmr_0_l
+		movlw 0x70 ; 0xC0 ; 0x52
 		movwf TMR0L
 		bsf T0CON,TMR0ON
 		call delay_loop
 		return
 
-; start delay with 889 us of rectangle signal which indicates the half of a bit with 32 pulses
 pwm_delay:
 		;load timer 0 for half bit
-		movlw tmr_0_h
+		movlw 0xF7
 		movwf TMR0H
-		movlw tmr_0_l
+		movlw 0x70 ; 0xC0 ; 0x52
 		movwf TMR0L
 		;load timer 2 for pwm
 		movlw 0x00
 		movwf TMR2
-		bsf LATC,1 		; set first pulse manually
+		bsf LATC,1 ;set first pulse manually
 
 		bsf T0CON,TMR0ON
 		bsf T2CON,TMR2ON
@@ -395,20 +333,19 @@ pwm_delay:
 
 		return
 
-; wait for timer 0 interrupt to end half bit by seting timer_done<0>
+;wait for interrupt to end half bit
 delay_loop:
 		btfss tmr_done,0
 		bra delay_loop
 		bcf tmr_done,0
 		return
 		
-; send logic 1 by first sending 889 us delay, then 889us of 32 pulses with frequency of 36 kHz
+
 send_1:
 		call tmr_delay
 		call pwm_delay
 		return
 
-; send logic 0 by first sending 889us of 32 pulses with frequency of 36 kHz, then 889us delay
 send_0:
 		call pwm_delay
 		call tmr_delay
@@ -423,67 +360,180 @@ send_0:
 ; The main program code is placed here.
 
 Main:
-		call init_port_c
-		call init_port_b
+		; configure port c
+		clrf PORTC
+		clrf LATC
+		movlw b'11111101'
+		movwf TRISC
+		;call Init
+		call init_portb
 		call init_ports
-		call init_port_c
 		
+		bsf LATC,1
 		
+		; configure pwm module
+		banksel PR2
+		movlw 0x46			; configure period time with 0x44
+		movwf PR2
+
+		movlw b'00010101' ;b'00000100'	; configure duty cycle with 0x11
+		movwf CCPR2L
+		movlw b'00001100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
+		movwf CCP2CON
+		
+		bcf PIR1,TMR2IF
+		bcf T2CON,T2CKPS1
+		bcf T2CON,T2CKPS0
+;		bsf T2CON,TMR2ON
+
+		
+		; start timer 0 for half bit
+		movlw b'00001000'
+		movwf T0CON
+		movlw 0xF7
+		movwf TMR0H
+		movlw 0x52
+		movwf TMR0L
+		bcf INTCON,TMR0IF ;interrupt flag
+		bsf INTCON,TMR0IE ;interrupt enable
+		bcf INTCON2,TMR0IP ;high priority interrupt
+		bsf INTCON,GIE ;general interrupt enable
+
+		movlw 0x00
+		movwf reset_timers
+
+		movlw 0x00
+		movwf send
+
+;wait_loop
+;		btfss send,0
+;		bra wait_loop
+
+		
+		movlw 0xF7
+		movwf TMR0H
+		movlw 0x70 ; 0xC0 ; 0x52
+		movwf TMR0L
+		;load timer 2 for pwm
+		movlw 0x00
+		movwf TMR2
+
 		bsf LATC,1
 		nop
 		nop
 		nop
 
 
+		movlw 0x00
+		movwf send_buffer
+
+skip_cmd
+		; send when rb4 or rb5 pressed, skip when released
+		movlw 0x00
+		movwf skip_release
+
+
 wait_cmd_loop
-		; go to sleep mode
+		
 		bcf OSCCON,IDLEN
 		sleep
+
 		nop
 		nop
 		nop
+
+		;bra wait_cmd_loop
+
+		; start timers
+;		movlw 0xF7
+;		movwf TMR0H
+;		movlw 0x52
+;		movwf TMR0L
+;		bsf T0CON,TMR0ON
+;		bsf T2CON,TMR2ON
+;
+;send_loop
+;		btfss reset_timers,0
+;		bra send_loop
+
 		
-		; counter to count 14 bits
+;		movlw b'00110101'
+;		movwf bit_buffer_h
+;		movlw b'00110101'
+;		movwf bit_buffer_l
+
 		movlw d'14'
 		movwf bit_ctr
+		movlw 0x00
+		movwf rev_bit_ctr
 
-		; counter to send command multiple times
 		movlw d'1'
 		movwf cmd_ctr
 
 		movlw 0x00
 		movwf tmr_done
 
+		movlw 0x00
+		movwf save_port_b
+
+		btfsc skip_release,0
+		bra skip_cmd
+		btfss skip_release,0
+		btg skip_release,0
+
 
 send_cmd_loop
-		; skip 2 msbs of bit command because only 14 bits are used
+;		movlw b'00110101'
+;		movwf bit_buffer_h
+;		movlw b'00110101'
+;		movwf bit_buffer_l
 		rlcf bit_buffer_l
 		rlcf bit_buffer_h
 		rlcf bit_buffer_l
 		rlcf bit_buffer_h
 
-send_bit_loop	
-		; put next bit in carry bit
+;		bcf OSCCON,IDLEN
+;		sleep
+;		nop
+;		nop
+;		nop
+
+
+send_bit_loop
+
+;		sleep
+;		nop
+;		nop
+;		nop		
+
 		rlcf bit_buffer_l
 		rlcf bit_buffer_h
 
-		; test bit to see if logic 0 or logic 1 needs to be sent
-		btfss STATUS,C		; is next bit logic 0?
-		call send_0			; yes
-		btfsc STATUS,C		; no, is next bit logic 1?
-		call send_1			; yes
+		btfss STATUS,C
+		call send_0
+		btfsc STATUS,C
+		call send_1
 
-		; go to next bit
-		decfsz bit_ctr		; no, are all bits sent?
-		bra send_bit_loop	; no, send next bit
+;
+		incf rev_bit_ctr
+		
+;		bcf OSCCON,IDLEN
+;		sleep
+;		nop
+;		nop
+;		nop
+;
+		
+		;call TxNull
+		;call TxEins
 
-		; send command multiple times
-		decfsz cmd_ctr		; yes, is the command sent enough times?
-		bra send_cmd_loop	; no, send the command again
+		decfsz bit_ctr
+		bra send_bit_loop
 
-		; wait for next bit
-		bra wait_cmd_loop	; yes, go to sleep and wait for next command
+		decfsz cmd_ctr
+		bra send_cmd_loop
 
+		bra wait_cmd_loop
 
 
 
