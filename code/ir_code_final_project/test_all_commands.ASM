@@ -23,23 +23,22 @@
 ;                                                                             *
 ;******************************************************************************
 
-	LIST P=18F4525	;directive to define processor
-	#include "P18F4525.INC"	;processor specific variable definitions
+	LIST P=18F4525			; directive to define processor
+	#include "P18F4525.INC"	; processor specific variable definitions
 
 ;******************************************************************************
 ;Configuration bits
-;Microchip has changed the format for defining the configuration bits, please 
-;see the .inc file for futher details on notation.  Below are a few examples.
-
-
 
 ;   Oscillator Selection:
-    CONFIG OSC = HS
-    CONFIG WDT = OFF
-    CONFIG LVP = OFF
+    CONFIG OSC = HS			; set oscillator mode to high-speed crystal with
+    						; external 10 MHz quartz
+    CONFIG WDT = OFF		; disable watchdog timer
+    CONFIG LVP = OFF		; disable low voltage programming, because MPLAB
+    						; ICD 3 can do high voltage programming
 
 ;******************************************************************************
 ;Variable definitions
+
 		reset_timers equ 0x00
 		send equ 0x01
 		bit_buffer_h equ 0x02
@@ -61,7 +60,6 @@
 	
 ;******************************************************************************
 ;EEPROM data
-; Data to be programmed into the Data EEPROM is defined here
 
 		ORG	0xf00000
 
@@ -69,63 +67,54 @@
 
 ;******************************************************************************
 ;Reset vector
-; This code will start executing when a reset occurs.
 
 		ORG	0x0000
 
-
-		goto	Main		;go to start of main code
+		goto	Main		; go to start of main code
 
 ;******************************************************************************
 ;High priority interrupt vector
-; This code will start executing when a high priority interrupt occurs or
-; when any interrupt occurs if interrupt priorities are not enabled.
 
 		ORG	0x0008
 
-		bra	HighInt		;go to high priority interrupt routine	
+		bra	HighInt			; go to high priority interrupt routine	
 
 ;******************************************************************************
 ;High priority interrupt routine
-; The high priority interrupt code is placed here to avoid conflicting with
-; the low priority interrupt vector.
 
 HighInt:
 
-;	*** high priority interrupt code goes here **
+		call interrupt_routine		; read pressed button and put the right
+									; command in bit buffer to send it
 
-		call interrupt_routine
-
-		bcf INTCON,INT0IF
-		bcf INTCON3,INT1IF
-		bcf INTCON3,INT2IF
+		bcf INTCON,INT0IF			; clear interrupt flags for pins rb
+		bcf INTCON3,INT1IF			; 0/1/2/4/5 to prevent getting multiple
+		bcf INTCON3,INT2IF			; interrupts with one button press
 		bcf INTCON,RBIF
 
 		retfie	FAST
 
 ;******************************************************************************
 ;Low priority interrupt vector
-; This code will start executing when a low priority interrupt occurs.
 
 		ORG	0x0018
 
-		bra	LowInt		;go to high priority interrupt routine	
+		bra	LowInt			; go to high priority interrupt routine	
 
 ;******************************************************************************
 ;Low priority interrupt routine
-; The low priority interrupt code is placed here to avoid conflicting with
-; the high priority interrupt vector.
 
 LowInt:
 
-;	*** low priority interrupt code goes here ***
-		bcf T0CON,TMR0ON
-		bcf T2CON,TMR2ON
+		bcf T0CON,TMR0ON	; stop timers 0 and 2 which are used for pwm pulses
+		bcf T2CON,TMR2ON	; and do not need to be used after sending these
+							; pulses is finished
 
-		bcf INTCON,TMR0IF
+		bcf INTCON,TMR0IF	; clear interrupt flag of timer 0 which triggers
+							; the low interrupt, clearing prevents multiple
+							; interrupts for one overflow event
 
 		bsf tmr_done,0
-
 
 		retfie	FAST
 
@@ -136,9 +125,9 @@ interrupt_routine:
 		bsf send,0
 
 		; test interrupt flags to identify pressed button
-		btfsc INTCON,RBIF	; pin 4/5 pressed
+		btfsc INTCON,RBIF		; pin 4/5 pressed
 		call send_rb_on_change
-		btfsc INTCON,INT0IF	; pin 0 pressed
+		btfsc INTCON,INT0IF		; pin 0 pressed
 		call send_rb_0
 		btfsc INTCON3,INT1IF	; pin 1 pressed
 		call send_rb_1
@@ -147,53 +136,71 @@ interrupt_routine:
 
 		return
 
-
+; handle pressing pin 4 or 5, because both pins trigger on change interrupt
 send_rb_on_change:
-		btg skip_release,0
-		bcf INTCON,RBIF
-		; check if pin 4 or 5 was pressed
-		btfss PORTB,4
+		btg skip_release,0	; toggle skip_release flag to prevent sending
+							; commands twice (by pressing and releasing
+							; button), command is skipped when skip_release<0>
+							; is '0'
+		bcf INTCON,RBIF		; clear interrupt flag to prevent multiple
+							; interrupts
+		btfss PORTB,4		; check if pin 4 was pressed
 		call send_rb_4
-		btfss PORTB,5
+		btfss PORTB,5		; check if pin 5 was pressed
 		call send_rb_5
 		return
-send_rb_0:					; send stop command
-		bsf skip_release,0
-		movlw b'00110101'
+
+; send stop command with pin RB0
+send_rb_0:
+		bsf skip_release,0	; set skip_release<0> to prevent skipping this
+							; command
+		movlw b'00110101'	; move rc5 code for stop command to bit buffer
 		movwf bit_buffer_h
 		movlw b'00110110'
 		movwf bit_buffer_l
-		bcf INTCON,INT0IF
+		bcf INTCON,INT0IF	; clear interrupt flag to prevent multiple
+							; interrupts
 		bsf send_buffer,0
 		return
-send_rb_1:					; send forward command
-		bsf skip_release,0
-		movlw b'00110101'
+
+; send forward command with pin RB1
+send_rb_1:
+		bsf skip_release,0	; set skip_release<0> to prevent skipping this
+							; command
+		movlw b'00110101'	; move rc5 code for forward command to bit buffer
 		movwf bit_buffer_h
 		movlw b'00110100'
 		movwf bit_buffer_l
-		bcf INTCON,INT1IF
+		bcf INTCON,INT1IF	; clear interrupt flag to prevent multiple
+							; interrupts
 		bsf send_buffer,1
 		return
-send_rb_2:					; send pause command
-		bsf skip_release,0
-		movlw b'00110101'
+
+; send pause command with pin RB2
+send_rb_2:
+		bsf skip_release,0	; set skip_release<0> to prevent skipping this
+							; command
+		movlw b'00110101'	; move rc5 code for pause command to bit buffer
 		movwf bit_buffer_h
 		movlw b'00110000'
 		movwf bit_buffer_l
-		bcf INTCON,INT2IF
+		bcf INTCON,INT2IF	; clear interrupt flag to prevent multiple
+							; interrupts
 		bsf send_buffer,2
 		return
-send_rb_4:					; send play command -> standby?
-		movlw b'00110101'
+		
+; send play command with pin RB4
+send_rb_4:
+		movlw b'00110101'	; move rc5 code for play command to bit buffer
 		movwf bit_buffer_h
 		movlw b'00001100'
 		movwf bit_buffer_l
 		bsf send_buffer,4
 		return
 
-send_rb_5:					; send backward command
-		movlw b'00110101'
+; send backward command
+send_rb_5:
+		movlw b'00110101'	; move rc5 code for backward command to bit buffer
 		movwf bit_buffer_h
 		movlw b'00110010'
 		movwf bit_buffer_l
@@ -202,95 +209,76 @@ send_rb_5:					; send backward command
 
 
 ;******************************************************************************
+;Initialization routines
 
+; configure port c
 init_portc:
-		; configure port c
-		clrf PORTC
+		clrf PORTC			; reset port c and its latch
 		clrf LATC
-		movlw b'11111101'
-		movwf TRISC
+		movlw b'11111101'	; set pin RC1 to be output, all other RC pins to be
+		movwf TRISC			; inputs
 		return
 		
-
+; configure port b as input with interrupts
 init_portb:
-		; Routine f r INT0- INT2
-		clrf	PORTB
+		clrf PORTB			; reset port b and its latch
 		clrf LATB
      
-		bcf    ADCON0,ADON ; AD Converter disabled 
-      
+		bcf ADCON0,ADON		; disable ad converter and reset its configuration
+		movlw 0xFF			; bits
+		movwf ADCON1
 
-		movlw	 0xFF
-		movwf	 ADCON1
-
-		movlw	0xFF
-		movwf	TRISB  
+		movlw 0xFF			; set all port b pins as inputs
+		movwf TRISB
 		
-		movlw	b'00111011'
-		movwf	PORTB
-; Clear Interrupt flags
-    	bcf 	INTCON,INT0IF
-		bcf		INTCON3,INT1IF
-		bcf		INTCON3,INT2IF
-    	bcf		INTCON,RBIF
+		movlw b'00111011'	; set pins with buttons to '1' to prevent
+		movwf PORTB			; triggering interrupt because buttons create
+							; high state as default (active low buttons)
+
+    	bcf INTCON,INT0IF	; clear interrupt flags for pins rb
+		bcf	INTCON3,INT1IF	; 0/1/2/4/5 to prevent getting multiple
+		bcf	INTCON3,INT2IF	; interrupts with one button press
+    	bcf	INTCON,RBIF
     
-    	bcf 	INTCON2,RBPU
+    	bcf INTCON2,RBPU	; activate internal weak pull-ups for all pins
+    						; on port b
 
-; Enable Interrupts       
-    	bsf 	INTCON,INT0IE
-		bsf		INTCON3,INT1IE
-		bsf		INTCON3,INT2IE
-    	bsf		INTCON,RBIE
+    	bsf INTCON,INT0IE	; enable interrupts for interrupt 0/1/2 and
+		bsf	INTCON3,INT1IE	; on change interrupts on port b
+		bsf	INTCON3,INT2IE
+    	bsf	INTCON,RBIE
 
-; Set edges in this case on falling edge 
-    	bcf 	INTCON2,INTEDG0
-    	bcf		INTCON2,INTEDG1
-		bcf		INTCON2,INTEDG2
+    	bcf INTCON2,INTEDG0	; set interrupts 0/1/2 to trigger on falling 
+    	bcf	INTCON2,INTEDG1	; edge
+		bcf	INTCON2,INTEDG2
 
-; Interrupt priority of int1 / 2 needs to be configured 
-
-    	bsf 	INTCON,GIEH  
-		bsf 	INTCON,GIEL 
-		bsf		INTCON,GIE
+    	bsf INTCON,GIEH		; activate all high priority interrupts	
+		bsf INTCON,GIEL 	; activate all low priority interrupts
+		bsf	INTCON,GIE		; activate all interrupts
       
-		bsf 	RCON,IPEN ; Enables Priorities 
+		bsf RCON,IPEN		; enable interrupt priorities 
 
-; Setting Priority high for INT1, INT2 
-		bsf		INTCON3,INT2IP
-		bsf		INTCON3,INT1IP
-    	bsf		INTCON2,RBIP ; Low Priority for interrupt on change
+		bsf	INTCON3,INT1IP	; set interrupt priority for interrupts 1/2
+		bsf	INTCON3,INT2IP	; and on change interrupt to high priority
+    	bsf	INTCON2,RBIP
 
 		return
 
+; configure ports a and d as inputs, routines are taken from pic18f4525 manual
 init_ports
-		CLRF PORTA ; Initialize PORTA by
-					; clearing output
-					; data latches
-		CLRF LATA ; Alternate method
-					; to clear output
-					; data latches
-		MOVLW 07h ; Configure A/D
-		MOVWF ADCON1 ; for digital inputs
-		MOVWF 07h ; Configure comparators
-		MOVWF CMCON ; for digital input
-		MOVLW 0FFh ; Value used to
-					; initialize data
-					; direction
-		MOVWF TRISA ; Set RA<7:6,3:0> as inputs
-					; RA<5:4> as outputs
+		clrf PORTA 		; initialize port a by clearing output data latches
+		clrf LATA
+		movlw 0x07 		; configure A/D for digital inputs
+		movwf ADCON1
+		movlw 0x07 		; configure comparators for digital input
+		movwf CMCON
+		movlw 0xFF 		; initialize data direction for all pins as output
+		movwf TRISA		
 		
-		CLRF PORTD ; Initialize PORTD by
-					; clearing output
-					; data latches
-		CLRF LATD ; Alternate method
-					; to clear output
-					; data latches
-		MOVLW 0FFh ; Value used to
-					; initialize data
-					; direction
-		MOVWF TRISD ; Set RD<3:0> as inputs
-					; RD<5:4> as outputs
-					; RD<7:6> as inputs
+		clrf PORTD		; initialize port d by clearing output data latches
+		clrf LATD
+		movlw 0FFh 		; initialize data direction for all pins as output
+		movwf TRISD
 		
 		return
 
