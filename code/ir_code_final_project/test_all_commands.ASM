@@ -282,93 +282,91 @@ init_ports
 		
 		return
 
+; configure pwm module
 init_pwm:
-		; configure pwm module
 		banksel PR2
-		movlw 0x46			; configure period time with 0x44
+		movlw 0x46			; configure period time with 0x46 for 36 kHz frequency
 		movwf PR2
 
-		movlw b'00010101' ;b'00000100'	; configure duty cycle with 0x11
-		movwf CCPR2L
-		movlw b'00001100' ;b'00011100'	; configure pwm mode and 2 lsbs of duty cycle
+		movlw b'00010101' 	; configure duty cycle to be between 1/3 and 1/4 of
+		movwf CCPR2L		; the whole signal
+		movlw b'00001100' 	; configure pwm mode and 2 lsbs of duty cycle
 		movwf CCP2CON
 		
-		bcf PIR1,TMR2IF
-		bcf T2CON,T2CKPS1
+		bcf PIR1,TMR2IF		; clear interrupt flag to prevent multiple
+							; interrupts
+		bcf T2CON,T2CKPS1	; set timer 2 clock prescaler value to '00'
 		bcf T2CON,T2CKPS0
-;		bsf T2CON,TMR2ON
 
-		
-		; start timer 0 for half bit
-		movlw b'00001000'
-		movwf T0CON
-		movlw 0xF7
+		movlw b'00001000'	; configure timer 0 with 16 bit, internal clock
+		movwf T0CON			; and prescaler value of '000'
+		movlw 0xF7			; set start value for timer 0
 		movwf TMR0H
 		movlw 0x52
 		movwf TMR0L
-		bcf INTCON,TMR0IF ;interrupt flag
-		bsf INTCON,TMR0IE ;interrupt enable
-		bcf INTCON2,TMR0IP ;high priority interrupt
-		bsf INTCON,GIE ;general interrupt enable
+		bcf INTCON,TMR0IF 	; clear interrupt flag to prevent multiple
+							; interrupts
+		bsf INTCON,TMR0IE 	; enable timer 0 interrupt
+		bcf INTCON2,TMR0IP 	; set interrupt priority to high
+		bsf INTCON,GIE 		; enable all interrupts
 		return
 
 
 
 ;******************************************************************************
+;Sending routines
 
+; start half bit with low state by waiting for 889 us
 tmr_delay:
 		;start timer 0 for pausing
-		movlw 0xF7
+		movlw 0xF7			; set start value for timer 0 which counts to overflow
 		movwf TMR0H
-		movlw 0x70 ; 0xC0 ; 0x52
+		movlw 0x70
 		movwf TMR0L
-		bsf T0CON,TMR0ON
-		call delay_loop
+		bsf T0CON,TMR0ON	; start timer 0
+		call delay_loop		; wait for timer 0 low interrupt
 		return
 
+; start half bit with rectangle signal by running pwm for 889 us
 pwm_delay:
-		;load timer 0 for half bit
-		movlw 0xF7
+		movlw 0xF7			; set start value for timer 0 which counts to overflow
 		movwf TMR0H
-		movlw 0x70 ; 0xC0 ; 0x52
+		movlw 0x70
 		movwf TMR0L
-		;load timer 2 for pwm
-		movlw 0x00
+		movlw 0x00			; set start value for timer 2 which counts for each pulse
 		movwf TMR2
-		bsf LATC,1 ;set first pulse manually
+		bsf LATC,1 			; set first pulse manually
 
-		bsf T0CON,TMR0ON
+		bsf T0CON,TMR0ON	; start timer 0 for 889 us delay and timer 2 for pwm
 		bsf T2CON,TMR2ON
 
-		call delay_loop
+		call delay_loop		; wait for timer 0 low interrupt
 
 		return
 
-;wait for interrupt to end half bit
+;wait for timer 0 interrupt to end half bit
 delay_loop:
 		btfss tmr_done,0
 		bra delay_loop
 		bcf tmr_done,0
 		return
 		
-
+; send logic '1' by first sending 889 us delay and then 32 pwm pulses
 send_1:
 		call tmr_delay
 		call pwm_delay
 		return
 
+; send logic '0' by first sending 32 pwm pulses and then 889 us delay
 send_0:
 		call pwm_delay
 		call tmr_delay
 		return
 
 
-
-
-
+;******************************************************************************
 
 ;Start of main program
-; The main program code is placed here.
 
 Main:
 		call init_portc
@@ -383,7 +381,6 @@ Main:
 		movwf send
 
 		clrf bit_buffer_toggle
-
 
 		
 		movlw 0xF7
