@@ -39,24 +39,17 @@
 ;******************************************************************************
 ;Variable definitions
 
-		reset_timers equ 0x00
-		send equ 0x01
-		bit_buffer_h equ 0x02
-		bit_buffer_l equ 0x03
-		bit_ctr equ 0x04
-		tmr_done equ 0x05
-		cmd_ctr equ 0x06
-		rev_bit_ctr equ 0x07
-
-		send_buffer equ 0x08
-
-		save_port_b equ 0x09
-		skip_release equ 0x0A
-		bit_buffer_toggle equ 0x0B
-		bit_buffer_h_tmp equ 0x0C
-		bit_buffer_l_tmp equ 0x0D
-		rand_delay_ctr equ 0x0E
-		rand_delay_ctr_outer equ 0x0F
+		bit_buffer_h 			equ 	0x00	; hold bits 13-8 of command
+		bit_buffer_l 			equ 	0x01	; hold bits 7-0 of command
+		bit_ctr 				equ 	0x02	; count 14 bits while sending
+		tmr_done 				equ 	0x03	; signal that half bit is finished
+		cmd_ctr 				equ 	0x04	; count times of sending command
+		skip_release 			equ 	0x05	; decide between falling and rising edge at rb 4/5
+		bit_buffer_toggle 		equ 	0x06	; toggle 3rd sent bit
+		bit_buffer_h_tmp 		equ 	0x07	; hold bits 13-8 of command while sending
+		bit_buffer_l_tmp 		equ 	0x08	; hold bits 7-0 of command while sending
+		rand_delay_ctr 			equ 	0x09	; count during inner delay loop between commands
+		rand_delay_ctr_outer 	equ 	0x0A	; count during outer delay loop between commands
 	
 ;******************************************************************************
 ;EEPROM data
@@ -122,8 +115,6 @@ LowInt:
 
 interrupt_routine:
 
-		bsf send,0
-
 		; test interrupt flags to identify pressed button
 		btfsc INTCON,RBIF		; pin 4/5 pressed
 		call send_rb_on_change
@@ -160,7 +151,6 @@ send_rb_0:
 		movwf bit_buffer_l
 		bcf INTCON,INT0IF	; clear interrupt flag to prevent multiple
 							; interrupts
-		bsf send_buffer,0
 		return
 
 ; send forward command with pin RB1
@@ -173,7 +163,6 @@ send_rb_1:
 		movwf bit_buffer_l
 		bcf INTCON,INT1IF	; clear interrupt flag to prevent multiple
 							; interrupts
-		bsf send_buffer,1
 		return
 
 ; send pause command with pin RB2
@@ -186,7 +175,6 @@ send_rb_2:
 		movwf bit_buffer_l
 		bcf INTCON,INT2IF	; clear interrupt flag to prevent multiple
 							; interrupts
-		bsf send_buffer,2
 		return
 		
 ; send play command with pin RB4
@@ -195,7 +183,6 @@ send_rb_4:
 		movwf bit_buffer_h
 		movlw b'00001100'
 		movwf bit_buffer_l
-		bsf send_buffer,4
 		return
 
 ; send backward command
@@ -204,7 +191,6 @@ send_rb_5:
 		movwf bit_buffer_h
 		movlw b'00110010'
 		movwf bit_buffer_l
-		bsf send_buffer,5
 		return
 
 
@@ -369,87 +355,53 @@ send_0:
 ;Start of main program
 
 Main:
-		call init_portc
+		call init_portc		; configure ports and pwm module
 		call init_portb
 		call init_ports
 		call init_pwm
 
-		movlw 0x00
-		movwf reset_timers
-
-		movlw 0x00
-		movwf send
-
 		clrf bit_buffer_toggle
-
-		
-		movlw 0xF7
-		movwf TMR0H
-		movlw 0x70 ; 0xC0 ; 0x52
-		movwf TMR0L
-		;load timer 2 for pwm
-		movlw 0x00
-		movwf TMR2
-
-		bsf LATC,1
-		nop
-		nop
-		nop
-
-
-		movlw 0x00
-		movwf send_buffer
 
 skip_cmd
 		; send when rb4 or rb5 pressed, skip when released
 		movlw 0x00
 		movwf skip_release
-		
-		; toggle because it was toggled with button off falsely
-		;btg bit_buffer_toggle,0
 
 
 wait_cmd_loop
 		
-		bcf OSCCON,IDLEN
+		bcf OSCCON,IDLEN	; go to sleep until next button is pressed
 		sleep
-
 		nop
 		nop
 		nop
 
-		movlw d'14'
-		movwf bit_ctr
-		movlw 0x00
-		movwf rev_bit_ctr
-
-		movlw d'1'
+		movlw d'3'			; send every command 3 times
 		movwf cmd_ctr
+		
+		btfss skip_release,0	; skip second command when button is released
+		bra skip_cmd			; at rb4 and rb5 because interrupt is triggered
+								; on change, not only on falling edge
 
-		movlw 0x00
-		movwf tmr_done
-
-		; skip second command when button is released at rb4 and rb5 (-> interrupt on change, not on edge)
-		btfss skip_release,0
-		bra skip_cmd
-
-
-send_cmd_loop
-
-		; set toggle bit in bit_buffer
-		btg bit_buffer_toggle,0
+		btg bit_buffer_toggle,0		; set toggle bit in bit_buffer
 		btfsc bit_buffer_toggle,0
 		bsf bit_buffer_h,3
 		btfss bit_buffer_toggle,0
 		bcf bit_buffer_h,3
-		
-		; send bit buffer from temporary constants to keep value
-		movf bit_buffer_h,W
+
+send_cmd_loop
+
+		movlw d'14'			; send 14 bits
+		movwf bit_ctr
+
+		clrf tmr_done			; reset flag that stops delay loop during sending
+
+		movf bit_buffer_h,W		; send bit buffer from temporary constants to keep value
 		movwf bit_buffer_h_tmp
 		movf bit_buffer_l,W
 		movwf bit_buffer_l_tmp
 
-		rlcf bit_buffer_l_tmp
+		rlcf bit_buffer_l_tmp	; skip first 2 bits because only 14 bits hold information
 		rlcf bit_buffer_h_tmp
 		rlcf bit_buffer_l_tmp
 		rlcf bit_buffer_h_tmp
@@ -457,32 +409,23 @@ send_cmd_loop
 
 send_bit_loop		
 
-		rlcf bit_buffer_l_tmp
+		rlcf bit_buffer_l_tmp	; transfer the next bit that should be sent in carry bit
 		rlcf bit_buffer_h_tmp
 
-		btfss STATUS,C
+		btfss STATUS,C			; test carry bit to see if '0' or '1' should be sent
 		call send_0
 		btfsc STATUS,C
 		call send_1
 
-
-		decfsz bit_ctr
+		decfsz bit_ctr			; send next bit if not all bits are sent already
 		bra send_bit_loop
-
-		decfsz cmd_ctr
-		bra send_cmd_loop ; not working
-
-		movlw d'14'
-		movwf bit_ctr
-		clrf tmr_done
-
-		movlw 0xFF
-		movwf rand_delay_ctr
+		
+		movlw 0xFF				; load inner and outer delay counter to create delay
+		movwf rand_delay_ctr	; between sending the command multiple times
 		movlw 0x40
 		movwf rand_delay_ctr_outer
 
-; little delay until command is sent again (9 ms)
-wait_rand_delay_outer
+wait_rand_delay_outer			; create delay of around 9 ms
 wait_rand_delay
 		nop
 		nop
@@ -491,76 +434,11 @@ wait_rand_delay
 		decfsz rand_delay_ctr_outer
 		bra wait_rand_delay_outer
 
-; send command again
-		movf bit_buffer_h,W
-		movwf bit_buffer_h_tmp
-		movf bit_buffer_l,W
-		movwf bit_buffer_l_tmp
-
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-
-send_bit_loop_2
-
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-		
-		btfss STATUS,C
-		call send_0
-		btfsc STATUS,C
-		call send_1
-
-		decfsz bit_ctr
-		bra send_bit_loop_2
-
-		movlw d'14'
-		movwf bit_ctr
-		clrf tmr_done
-
-		movlw 0xFF
-		movwf rand_delay_ctr
-		movlw 0x40
-		movwf rand_delay_ctr_outer
-
-; little delay until command is sent again (9 ms)
-wait_rand_delay_outer_3
-wait_rand_delay_3
-		nop
-		nop
-		decfsz rand_delay_ctr
-		bra wait_rand_delay_3
-		decfsz rand_delay_ctr_outer
-		bra wait_rand_delay_outer_3
-
-; send command again
-		movf bit_buffer_h,W
-		movwf bit_buffer_h_tmp
-		movf bit_buffer_l,W
-		movwf bit_buffer_l_tmp
-
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-
-send_bit_loop_3
-
-		rlcf bit_buffer_l_tmp
-		rlcf bit_buffer_h_tmp
-		
-		btfss STATUS,C
-		call send_0
-		btfsc STATUS,C
-		call send_1
-
-		decfsz bit_ctr
-		bra send_bit_loop_3
+		decfsz cmd_ctr			; send command again if it was not sent 3 times already
+		bra send_cmd_loop
 
 
-		; go to sleep after sending 3 commands
-		bra wait_cmd_loop
+		bra wait_cmd_loop		; go to sleep after sending 3 commands
 
 
 
