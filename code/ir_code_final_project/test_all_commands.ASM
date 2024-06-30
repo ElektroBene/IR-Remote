@@ -86,7 +86,10 @@ HighInt:
 		;bcf INTCON3,INT2IF			; interrupts with one button press
 		;bcf INTCON,RBIF
 
-		retfie	FAST
+		retfie	FAST 			
+							; pops the contents of the program counter 
+							;previously pushed before going to the service routine, enables all interrupts, 
+							; and returns control to the appropriate place in the main program. 
 
 ;******************************************************************************
 ;Low priority interrupt vector
