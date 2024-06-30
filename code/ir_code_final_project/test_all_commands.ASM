@@ -80,10 +80,11 @@ HighInt:
 		call interrupt_routine		; read pressed button and put the right
 									; command in bit buffer to send it
 
-		bcf INTCON,INT0IF			; clear interrupt flags for pins rb
-		bcf INTCON3,INT1IF			; 0/1/2/4/5 to prevent getting multiple
-		bcf INTCON3,INT2IF			; interrupts with one button press
-		bcf INTCON,RBIF
+                ; deleted lower commands because already in code in routines 
+		;bcf INTCON,INT0IF			; clear interrupt flags for pins rb
+		;bcf INTCON3,INT1IF			; 0/1/2/4/5 to prevent getting multiple
+		;bcf INTCON3,INT2IF			; interrupts with one button press
+		;bcf INTCON,RBIF
 
 		retfie	FAST
 
@@ -221,32 +222,32 @@ init_portb:
 		movwf PORTB			; triggering interrupt because buttons create
 							; high state as default (active low buttons)
 
-    	bcf INTCON,INT0IF	; clear interrupt flags for pins rb
+    		bcf 	INTCON,INT0IF	; clear interrupt flags for pins rb
 		bcf	INTCON3,INT1IF	; 0/1/2/4/5 to prevent getting multiple
 		bcf	INTCON3,INT2IF	; interrupts with one button press
-    	bcf	INTCON,RBIF
+    		bcf	INTCON,RBIF
     
-    	bcf INTCON2,RBPU	; activate internal weak pull-ups for all pins
+    		bcf 	INTCON2,RBPU	; activate internal weak pull-ups for all pins
     						; on port b
 
-    	bsf INTCON,INT0IE	; enable interrupts for interrupt 0/1/2 and
+    		bsf 	INTCON,INT0IE	; enable interrupts for interrupt 0/1/2 and
 		bsf	INTCON3,INT1IE	; on change interrupts on port b
 		bsf	INTCON3,INT2IE
-    	bsf	INTCON,RBIE
+    		bsf	INTCON,RBIE
 
-    	bcf INTCON2,INTEDG0	; set interrupts 0/1/2 to trigger on falling 
-    	bcf	INTCON2,INTEDG1	; edge
+    		bcf 	INTCON2,INTEDG0	; set interrupts 0/1/2 to trigger on falling 
+    		bcf	INTCON2,INTEDG1	; edge
 		bcf	INTCON2,INTEDG2
 
-    	bsf INTCON,GIEH		; activate all high priority interrupts	
-		bsf INTCON,GIEL 	; activate all low priority interrupts
+    		bsf 	INTCON,GIEH		; activate all high priority interrupts	
+		bsf 	INTCON,GIEL 	; activate all low priority interrupts
 		bsf	INTCON,GIE		; activate all interrupts
       
-		bsf RCON,IPEN		; enable interrupt priorities 
+		bsf 	RCON,IPEN		; enable interrupt priorities 
 
 		bsf	INTCON3,INT1IP	; set interrupt priority for interrupts 1/2
 		bsf	INTCON3,INT2IP	; and on change interrupt to high priority
-    	bsf	INTCON2,RBIP
+    		bsf	INTCON2,RBIP
 
 		return
 
