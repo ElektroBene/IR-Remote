@@ -1,0 +1,99 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Mon Jul 01 10:31:37 2024
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_2       code   0x000000    program   0x000004
+                   .org_3       code   0x000008    program   0x000010
+                   .org_4       code   0x000018    program   0x0001bc
+.config_300001_TEST_ALL_COMMANDS.O    romdata   0x300001    program   0x000001
+.config_300002_TEST_ALL_COMMANDS.O    romdata   0x300002    program   0x000001
+.config_300003_TEST_ALL_COMMANDS.O    romdata   0x300003    program   0x000001
+.config_300005_TEST_ALL_COMMANDS.O    romdata   0x300005    program   0x000001
+.config_300006_TEST_ALL_COMMANDS.O    romdata   0x300006    program   0x000001
+.config_300008_TEST_ALL_COMMANDS.O    romdata   0x300008    program   0x000001
+.config_300009_TEST_ALL_COMMANDS.O    romdata   0x300009    program   0x000001
+.config_30000A_TEST_ALL_COMMANDS.O    romdata   0x30000a    program   0x000001
+.config_30000B_TEST_ALL_COMMANDS.O    romdata   0x30000b    program   0x000001
+.config_30000C_TEST_ALL_COMMANDS.O    romdata   0x30000c    program   0x000001
+.config_30000D_TEST_ALL_COMMANDS.O    romdata   0x30000d    program   0x000001
+                   .org_1       code   0xf00000    program   0x000010
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000003      
+                            0x000008    0x0001d3      
+                            0x300001    0x300003      
+                            0x300005    0x300006      
+                            0x300008    0x30000d      
+                            0xf00000    0xf0000f      
+            491 out of 50200 program addresses used, program memory utilization is 0%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   LowInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                     Main   0x00015a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               delay_loop   0x00013e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_portb   0x000098    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_portc   0x00008e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_ports   0x0000d2    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                 init_pwm   0x0000ec    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+        interrupt_routine   0x000024    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                pwm_delay   0x000126    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   send_0   0x000150    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   send_1   0x000146    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            send_bit_loop   0x0001a2    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            send_cmd_loop   0x00018c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_0   0x000050    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_1   0x00005e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_2   0x00006c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_4   0x00007a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_5   0x000084    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+        send_rb_on_change   0x00003e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                 skip_cmd   0x00016c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                tmr_delay   0x000116    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            wait_cmd_loop   0x000170    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+          wait_rand_delay   0x0001be    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+    wait_rand_delay_outer   0x0001be    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                  HighInt   0x00000a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   LowInt   0x00001a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+        interrupt_routine   0x000024    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+        send_rb_on_change   0x00003e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_0   0x000050    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_1   0x00005e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_2   0x00006c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_4   0x00007a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                send_rb_5   0x000084    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_portc   0x00008e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_portb   0x000098    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               init_ports   0x0000d2    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                 init_pwm   0x0000ec    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                tmr_delay   0x000116    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                pwm_delay   0x000126    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+               delay_loop   0x00013e    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   send_1   0x000146    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                   send_0   0x000150    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                     Main   0x00015a    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+                 skip_cmd   0x00016c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            wait_cmd_loop   0x000170    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            send_cmd_loop   0x00018c    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+            send_bit_loop   0x0001a2    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+          wait_rand_delay   0x0001be    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+    wait_rand_delay_outer   0x0001be    program     static C:\Users\BMDT\Documents\MSE\ir_remote_final_final_final\IR-Remote-main\code\ir_code_final_project\test_all_commands.ASM
+
+
